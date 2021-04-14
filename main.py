@@ -1,12 +1,16 @@
 # bot.py
-import os, random
-import wikipedia_for_humans, discord
+import os
+import random
+import wikipedia_for_humans
+import discord
 from asyncio import sleep
 from dotenv import load_dotenv
-# from gtts import gTTS
+from gtts import gTTS
 from discord.ext import commands
 
 load_dotenv()
+intents = discord.Intents.default()
+intents.members = True
 
 offese = [
     " ha bisogno di un nuovo buco del culo",
@@ -17,7 +21,8 @@ offese = [
 ]
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-bot = commands.Bot(command_prefix="asd ", )
+GINO_ID = os.getenv('GINO')
+bot = commands.Bot(command_prefix="asd ", intents=intents)
 
 
 @bot.command(name="join")
@@ -32,8 +37,8 @@ async def join(ctx):
 @bot.command(name="leave")
 async def leave(ctx):
     guild = ctx.guild
-    voice_client: discord.VoiceClient = discord.utils.get(bot.voice_clients,
-    guild=guild)
+    voice_client: discord.VoiceClient = discord.utils.get(
+        bot.voice_clients, guild=guild)
     audio_source = discord.FFmpegPCMAudio(
         source='./sounds/teamspeak_disconnect.mp3')
     if not voice_client.is_playing():
@@ -58,23 +63,42 @@ async def wiki(ctx, args):
         return
 
     if search != None:
-        # tts = gTTS(search)
-        # tts.save('yes.mp3')
-        await ctx.send(search)
-        '''
-        guild = ctx.guild
-        voice_client: discord.VoiceClient = discord.utils.get(bot.voice_clients, guild=guild)
-        audio_source = discord.FFmpegPCMAudio(source='./yes.mp3')
-        if not voice_client.is_playing():
-            voice_client.play(audio_source, after=None)
-        '''
+        if search != "":
+            # tts = gTTS(search)
+            # tts.save('yes.mp3')
+            '''
+            guild = ctx.guild
+            voice_client: discord.VoiceClient = discord.utils.get(
+                bot.voice_clients, guild=guild)
+            audio_source = discord.FFmpegPCMAudio(source='./yes.mp3')
+            try:
+                if not voice_client.is_playing():
+                    voice_client.play(audio_source, after=None)
+            except AttributeError as err:
+                print("not in a voice channel")
+            '''
+            await ctx.send(search)
+        else:
+            await ctx.send("Page not found")
 
-#lollo_magie 
-#kick di tutti gli utenti in chat vocale
-@bot.command(name='clear')
-async def cleal_all(ctx):
-  
+# lollo_magie
+
+# kick di tutti gli utenti in chat vocale
 
 
+@bot.command(name='killall')
+async def killall(ctx):
+    print("aaaa")
+    if ctx.author.voice:  # if the author is connected to a voice channel
+        if ctx.message.author.id == int(GINO_ID):
+            channel = ctx.message.author.voice.channel
+            users = channel.members
+            print(users)
+            for user in users:
+                await user.edit(voice_channel=None)
+            # await ctx.send("Kicked all the members from the voice channel!")
+    else:
+        await ctx.send("You need to be in a voice channel!")
+        return
 
 bot.run(TOKEN)
