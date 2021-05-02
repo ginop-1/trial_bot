@@ -173,7 +173,7 @@ class main_bot(commands.Cog):
             return
         if len(self.song_queue) == 0:
             return
-        url = self.song_queue[-1]['formats'][0]['url']
+        url = self.song_queue[0]['formats'][0]['url']
         vc = Utility._actual_voice_channel(ctx)
         coro = ctx.send(embed=Utility.get_embed(
             "Now Playing", 0, self.song_queue))
