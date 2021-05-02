@@ -5,9 +5,11 @@ load_dotenv()
 
 
 class storage:
-    
+    """Class that only contains constant 
+    (ex. Discord Token and my youtube-dl download option)
+    """
     TOKEN: str = os.getenv('DISCORD_TOKEN')
-    GINO_ID: int = os.getenv('GINO')
+    GINO_ID: int = int(os.getenv('GINO'))
 
     offese: list = (
         " ha bisogno di un nuovo buco del culo",
@@ -47,7 +49,6 @@ class storage:
 
     ydl_opts = {
         'format': '249/250/251',
-        'outtmpl': './sounds/queue/song.mp3',
         'logtostderr': False,
         'quiet': True,
     }
