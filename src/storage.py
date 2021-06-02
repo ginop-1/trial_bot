@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class storage:
     """Class that only contains constant 
     (ex. Discord Token and my youtube-dl download option)
@@ -24,7 +23,7 @@ class storage:
         " sei così brutto che non troveresti una prostituta nei giorni di sconto.",
         " sai che hai proprio un bel viso, ti cerco un colloquio per lavorare in radio.",
         " il tuo ano è geloso della tua bocca da quanta merda esce da quella fogna.",
-        " se fossi cieco, sordo e disperato non ti chiaverei ugualmente.",
+        " se io fossi cieco, sordo e disperato non ti chiaverei ugualmente.",
         " mi dai così fastidio che per farti sta zitto ti farei inculare da dei negri sordi, così quando dici basta non ti sentono.",
         " si scopa le obese",
         " sei un grimaldello nello culo che rotea",
@@ -51,4 +50,5 @@ class storage:
         'format': '249/250/251',
         'logtostderr': False,
         'quiet': True,
+        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
     }

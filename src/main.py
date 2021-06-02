@@ -23,8 +23,9 @@ class Utility():
     def _actual_voice_channel(ctx):
         return discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
-    def get_url_video(info: dict):
-        return "https://www.youtube.com/watch?v="+info['id']
+    def get_url_video(video_info: dict):
+        # print(video_info['formats'])
+        return video_info['formats'][0]['url']
 
     def get_embed(title: str, index: int, song_queue: dict()):
         red_color = 0xff0000
@@ -38,15 +39,15 @@ class Utility():
 
 
 class main_bot(commands.Cog):
-    """[summary]: Bot class that contains bot commands
-
-    Args:
-        commands ([type]): [description]
-    """
+    '''
+    Main class
+    ----------
+    contains all commands
+    '''
 
     def __init__(self, bot):
         self.bot = bot
-        self.song_queue = []
+        queue = self.song_queue = []
 
     @commands.command(name="join")
     async def join(self, ctx):
@@ -79,8 +80,8 @@ class main_bot(commands.Cog):
         await ctx.send(response)
         voice = Utility._actual_voice_channel(ctx)
         if voice is None:
-            with ctx.author.voice.channel as channel:
-                voice = await channel.connect()
+            channel = ctx.author.voice.channel
+            voice = await channel.connect()
         tts = gTTS(response, lang='it')
         tts.save('yes.mp3')
         if not voice.is_playing():
@@ -121,13 +122,14 @@ class main_bot(commands.Cog):
 
     @commands.command(name='killall')
     async def killall(self, ctx):
+        # print(f"ctx type: {type(ctx)}")
         # if the author is connected to a voice channel
         if not ctx.author.voice:
             return await ctx.send("You need to be in a voice channel!")
         if ctx.message.author.id == storage.GINO_ID:
-            with ctx.message.author.voice.channel.members as users:
-                for user in users:
-                    await user.edit(voice_channel=None)
+            users = ctx.message.author.voice.channel.members
+            for user in users:
+                await user.move_to(None, reason="Nibba")
             # await ctx.send("Kicked all the members from the voice channel")
 
     @commands.command(name="play", aliases=["p"])
@@ -149,15 +151,14 @@ class main_bot(commands.Cog):
         if not voice.is_playing():
             # print(self.song_queue[0])
             # print(self.song_queue[-1]['title'])
-            url = video_info['formats'][0]['url']
             message = await ctx.send(embed=Utility.get_embed(
                 "Now Playing", -1, self.song_queue)
             )
-            voice.play(discord.FFmpegPCMAudio(source=url),
+            voice.play(discord.FFmpegPCMAudio(source=Utility.get_url_video(video_info)),
                        after=lambda e: self.play_next(ctx, message))
         else:
             await ctx.send(embed=Utility.get_embed(
-                "Added to queue", -1, self.song_queue), delete_after=15)
+                "Added to queue", -1, self.song_queue), delete_after=30)
             # voice.play(discord.FFmpegOpusAudio("song.mp3"))
 
     def play_next(self, ctx, message):
@@ -173,7 +174,6 @@ class main_bot(commands.Cog):
             return
         if len(self.song_queue) == 0:
             return
-        url = self.song_queue[0]['formats'][0]['url']
         vc = Utility._actual_voice_channel(ctx)
         coro = ctx.send(embed=Utility.get_embed(
             "Now Playing", 0, self.song_queue))
@@ -183,7 +183,7 @@ class main_bot(commands.Cog):
         except:
             pass
         vc.play(discord.FFmpegPCMAudio(
-            source=url),
+            source=Utility.get_url_video(self.song_queue[0])),
             after=lambda e: self.play_next(ctx, coro)
         )
 
