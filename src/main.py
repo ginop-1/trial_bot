@@ -89,36 +89,39 @@ class main_bot(commands.Cog):
 
     @commands.command(name="wiki")
     async def wiki(self, ctx, *argv):
+
+        async def _page_not_found(ctx):
+            return await ctx.send("Page not found")
+
         words = ' '.join(argv)
         try:
             search = str(wikipedia_for_humans.summary(words))
+            title = str(wikipedia_for_humans._get_title(words))
         except Exception as e:
-            await ctx.send("Page not found, error")
-            search = None
-            return
+            return _page_not_found(ctx)
 
-        if search is None:
-            return
-
-        if search != "":
-            # tts = gTTS(search, lang="it")
-            # tts.save('yes.mp3')
-            '''
-            voice_client: discord.VoiceClient = discord.utils.get(
-                bot.voice_clients, guild=ctx.guild)
-            audio_source = discord.FFmpegPCMAudio(source='./yes.mp3')
-            try:
-                if not voice_client.is_playing():
-                    voice_client.play(audio_source, after=None)
-            except AttributeError as err:
-                print("not in a voice channel")
-            '''
-            search = search.splitlines()[0]
-            if len(search) > 2000:
-                search = search[:2000]
-            return await ctx.send(search)
-
-        return await ctx.send("Page not found")
+        if search == "" or search is None:
+            return _page_not_found(ctx)
+        
+        '''
+        uncomment this lines for TTS
+        tts = gTTS(search, lang="it")
+        tts.save('yes.mp3')
+        
+        voice_client: discord.VoiceClient = discord.utils.get(
+            bot.voice_clients, guild=ctx.guild)
+        audio_source = discord.FFmpegPCMAudio(source='./yes.mp3')
+        try:
+            if not voice_client.is_playing():
+                voice_client.play(audio_source, after=None)
+        except AttributeError as err:
+            print("not in a voice channel")
+        '''
+        search = f"**{title}**:\n" + search.splitlines()[0]
+        if len(search) > 2000:
+            # discord 2000 char limit
+            search = search[:2000]
+        return await ctx.send(search)
 
     @commands.command(name='killall')
     async def killall(self, ctx):
@@ -214,9 +217,8 @@ class main_bot(commands.Cog):
             return print("not in a voice channel")
         if not voice.is_playing():
             await ctx.message.add_reaction("▶️")
-            voice.resume()
-        else:
-            await ctx.send("The audio is not paused.")
+            return voice.resume()
+        await ctx.send("The audio is not paused.")
 
     @commands.command(name="stop")
     async def stop(self, ctx):
