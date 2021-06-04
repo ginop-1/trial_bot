@@ -102,7 +102,7 @@ class main_bot(commands.Cog):
 
         if search == "" or search is None:
             return _page_not_found(ctx)
-        
+
         '''
         uncomment this lines for TTS
         tts = gTTS(search, lang="it")
