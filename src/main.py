@@ -98,10 +98,10 @@ class main_bot(commands.Cog):
             search = str(wikipedia_for_humans.summary(words))
             title = str(wikipedia_for_humans._get_title(words))
         except Exception as e:
-            return _page_not_found(ctx)
+            return await _page_not_found(ctx)
 
         if search == "" or search is None:
-            return _page_not_found(ctx)
+            return await _page_not_found(ctx)
 
         '''
         uncomment this lines for TTS
