@@ -1,6 +1,5 @@
 #!./env/bin/python3
 
-import os
 import random
 import wikipedia_for_humans
 import discord
