@@ -1,6 +1,6 @@
 <h1 align="center"> Trial BOT </h1>
 
-<h5 align="center">simple discord bot plays music, scrapes wikipedia and other useless stuff</h5>
+<h5 align="center">simple discord bot that plays music, scrapes wikipedia and other useless stuff</h5>
 <p align="center">
 <a href="https://discordpy.readthedocs.io/en/stable/index.html">
   <img src="https://img.shields.io/badge/BUILT%20USING-Discord.py-blue?style=for-the-badge" /></a>
