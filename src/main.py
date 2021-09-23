@@ -1,12 +1,11 @@
-#!./env/bin/python3
-
 import random
 import wikipedia_for_humans
 import discord
 import asyncio
 from gtts import gTTS
-from discord.ext import commands
+from discord.ext import commands, tasks
 import youtube_dl
+
 # Custom
 from storage import storage
 
@@ -14,7 +13,7 @@ intents = discord.Intents.default()
 intents.members = True
 
 
-class Utility():
+class Utility:
     """Class
     It contains useful function to clean up code
     """
@@ -24,46 +23,53 @@ class Utility():
 
     def get_url_video(video_info: dict):
         # print(video_info['formats'])
-        return video_info['formats'][0]['url']
+        return video_info["formats"][0]["url"]
 
     def get_embed(title: str, index: int, song_queue: dict()):
-        red_color = 0xff0000
+        red_color = 0xFF0000
         # print(song_queue)
         embedvar = discord.Embed(
             title=title,
-            description=f"[{song_queue[index]['title']}]" +
-                        f"({Utility.get_url_video(song_queue[index])})",
-            color=red_color)
+            description=f"[{song_queue[index]['title']}]"
+            + f"({Utility.get_url_video(song_queue[index])})",
+            color=red_color,
+        )
         return embedvar
 
 
 class main_bot(commands.Cog):
-    '''
+    """
     Main class
     ----------
     contains all commands
-    '''
+    """
 
     def __init__(self, bot):
         self.bot = bot
-        queue = self.song_queue = []
+        self.song_queue = []
 
     @commands.command(name="join")
     async def join(self, ctx):
+        """
+        Join in a voice channel
+        """
         if Utility._actual_voice_channel(ctx) is not None:
             ctx.send("Alread connected to a voice channel")
         channel = ctx.author.voice.channel
         connected = await channel.connect()
         connected.play(
             discord.FFmpegPCMAudio(
-                source='./sounds/user-joined-your-channel.mp3'), )
+                source="./sounds/user-joined-your-channel.mp3"
+            ),
+        )
 
     @commands.command(name="leave")
     async def leave(self, ctx):
         guild = ctx.guild
         voice_client = Utility._actual_voice_channel(ctx)
         audio_source = discord.FFmpegPCMAudio(
-            source='./sounds/teamspeak_disconnect.mp3')
+            source="./sounds/teamspeak_disconnect.mp3"
+        )
         if not voice_client.is_playing():
             voice_client.play(audio_source, after=None)
         while voice_client.is_playing():
@@ -72,7 +78,7 @@ class main_bot(commands.Cog):
 
     @commands.command(name="offendi")
     async def shame(self, ctx, *argv):
-        words = ' '.join(argv)
+        words = " ".join(argv)
         # IDK why but using directly storage.offese[index] not works
         offese = storage.offese
         response = words + offese[random.randint(0, len(offese) - 1)]
@@ -81,18 +87,17 @@ class main_bot(commands.Cog):
         if voice is None:
             channel = ctx.author.voice.channel
             voice = await channel.connect()
-        tts = gTTS(response, lang='it')
-        tts.save('yes.mp3')
+        tts = gTTS(response, lang="it")
+        tts.save("yes.mp3")
         if not voice.is_playing():
-            voice.play(discord.FFmpegPCMAudio(source='./yes.mp3'), after=None)
+            voice.play(discord.FFmpegPCMAudio(source="./yes.mp3"), after=None)
 
     @commands.command(name="wiki")
     async def wiki(self, ctx, *argv):
-
         async def _page_not_found(ctx):
             return await ctx.send("Page not found")
 
-        words = ' '.join(argv)
+        words = " ".join(argv)
         try:
             search = str(wikipedia_for_humans.summary(words))
             title = str(wikipedia_for_humans._get_title(words))
@@ -102,7 +107,7 @@ class main_bot(commands.Cog):
         if search == "" or search is None:
             return await _page_not_found(ctx)
 
-        '''
+        """
         uncomment this lines for TTS
         tts = gTTS(search, lang="it")
         tts.save('yes.mp3')
@@ -115,14 +120,14 @@ class main_bot(commands.Cog):
                 voice_client.play(audio_source, after=None)
         except AttributeError as err:
             print("not in a voice channel")
-        '''
+        """
         search = f"**{title}**:\n" + search.splitlines()[0]
         if len(search) > 2000:
             # discord 2000 char limit
             search = search[:2000]
         return await ctx.send(search)
 
-    @commands.command(name='killall')
+    @commands.command(name="killall")
     async def killall(self, ctx):
         # print(f"ctx type: {type(ctx)}")
         # if the author is connected to a voice channel
@@ -138,11 +143,12 @@ class main_bot(commands.Cog):
     async def play(self, ctx, *argv):
 
         # Get the ytsarch + search word for initial searching
-        video_info = "ytsearch:" + ' '.join(argv)
+        video_info = "ytsearch:" + " ".join(argv)
 
         # Get the info about the video. Dict['entries'][0]['blablabla']
         video_info = youtube_dl.YoutubeDL(storage.ydl_opts).extract_info(
-            video_info, download=False)['entries'][0]
+            video_info, download=False
+        )["entries"][0]
         self.song_queue.append(video_info)
         voice = Utility._actual_voice_channel(ctx)
         # queue.append(url)
@@ -153,14 +159,20 @@ class main_bot(commands.Cog):
         if not voice.is_playing():
             # print(self.song_queue[0])
             # print(self.song_queue[-1]['title'])
-            message = await ctx.send(embed=Utility.get_embed(
-                "Now Playing", -1, self.song_queue)
+            message = await ctx.send(
+                embed=Utility.get_embed("Now Playing", -1, self.song_queue)
             )
-            voice.play(discord.FFmpegPCMAudio(source=Utility.get_url_video(video_info)),
-                       after=lambda e: self.play_next(ctx, message))
+            voice.play(
+                discord.FFmpegPCMAudio(
+                    source=Utility.get_url_video(video_info)
+                ),
+                after=lambda e: self.play_next(ctx, message),
+            )
         else:
-            await ctx.send(embed=Utility.get_embed(
-                "Added to queue", -1, self.song_queue), delete_after=30)
+            await ctx.send(
+                embed=Utility.get_embed("Added to queue", -1, self.song_queue),
+                delete_after=30,
+            )
             # voice.play(discord.FFmpegOpusAudio("song.mp3"))
 
     def play_next(self, ctx, message):
@@ -177,16 +189,38 @@ class main_bot(commands.Cog):
         if len(self.song_queue) == 0:
             return
         vc = Utility._actual_voice_channel(ctx)
-        coro = ctx.send(embed=Utility.get_embed(
-            "Now Playing", 0, self.song_queue))
+        coro = ctx.send(
+            embed=Utility.get_embed("Now Playing", 0, self.song_queue)
+        )
         fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
         try:
             coro = fut.result()
         except:
             pass
-        vc.play(discord.FFmpegPCMAudio(
-            source=Utility.get_url_video(self.song_queue[0])),
-            after=lambda e: self.play_next(ctx, coro)
+        vc.play(
+            discord.FFmpegPCMAudio(
+                source=Utility.get_url_video(self.song_queue[0])
+            ),
+            after=lambda e: self.play_next(ctx, coro),
+        )
+
+    @commands.command(name="queue", aliases=["q"])
+    async def queue(self, ctx):
+        if not len(self.song_queue):
+            return await ctx.send(
+                embed=discord.Embed(title="No songs in queue")
+            )
+        await ctx.send(
+            embed=discord.Embed(
+                title="Queue:",
+                color=0xFF000,
+                description="\n".join(
+                    [
+                        f"{i}\t- {song_title['title']}"
+                        for i, song_title in enumerate(self.song_queue)
+                    ]
+                ),
+            )
         )
 
     @commands.command(name="skip")
