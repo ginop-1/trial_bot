@@ -3,12 +3,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class storage:
-    """Class that only contains constant 
+    """Class that only contains constant
     (ex. Discord Token and my youtube-dl download option)
     """
-    TOKEN: str = os.getenv('DISCORD_TOKEN')
-    GINO_ID: int = int(os.getenv('GINO'))
+
+    TOKEN: str = os.getenv("DISCORD_TOKEN")
+    GINO_ID: int = int(os.getenv("GINO"))
+    CHARS_LIMIT = 2000
 
     offese: list = (
         " ha bisogno di un nuovo buco del culo",
@@ -47,8 +50,8 @@ class storage:
     )
 
     ydl_opts = {
-        'format': '249/250/251',
-        'logtostderr': False,
-        'quiet': True,
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
+        "format": "249/250/251",
+        "logtostderr": False,
+        "quiet": True,
+        "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     }
