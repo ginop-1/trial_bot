@@ -22,11 +22,10 @@ class Utility:
         return discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
     def get_url_video(video_info: dict):
-        if video_info["_type"] == "url":
-            with youtube_dl.YoutubeDL(storage.ydl_opts) as downloader:
-                video_info = downloader.extract_info(
-                    f"{video_info['id']}", download=False
-                )
+        with youtube_dl.YoutubeDL(storage.ydl_opts) as downloader:
+            video_info = downloader.extract_info(
+                f"{video_info['id']}", download=False
+            )
         # print(video_info['formats'])
         return video_info["url"]
 
@@ -143,15 +142,9 @@ class main_bot(commands.Cog):
     async def play(self, ctx, *argv):
         url = " ".join(argv)  # get the url (or name) of video
 
-        with youtube_dl.YoutubeDL(storage.ydl_opts) as downloader:
+        with youtube_dl.YoutubeDL({"extract_flat": True}) as downloader:
             try:
-                # valid url
-                if "playlist" in url:
-                    video_info = youtube_dl.YoutubeDL(
-                        {"extract_flat": True}
-                    ).extract_info(url, download=False)
-                else:
-                    video_info = downloader.extract_info(url, download=False)
+                video_info = downloader.extract_info(url, download=False)
             except youtube_dl.DownloadError as e:
                 # not valid url (ex: Despacito)
                 video_info = downloader.extract_info(
@@ -199,7 +192,7 @@ class main_bot(commands.Cog):
             del self.song_queue[0]
         except IndexError as e:
             return
-        if len(self.song_queue) == 0:
+        if not len(self.song_queue):
             return
         vc = Utility.actual_voice_channel(ctx)
         coro = ctx.send(
@@ -226,7 +219,7 @@ class main_bot(commands.Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="Queue:",
-                color=0xFF000,
+                color=0xFF0000,
                 description="\n".join(
                     [
                         f"{i+1}\t- {song_title['title']}"
