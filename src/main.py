@@ -49,6 +49,16 @@ class main_bot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.song_queue = []
+        self.auto_leave_afk.start()
+
+    @tasks.loop(minutes=2)
+    async def auto_leave_afk(self):
+        voice = discord.utils.get(bot.voice_clients)
+        # print(voice)
+        if not voice:
+            return
+        if not voice.is_playing():
+            await voice.disconnect()
 
     @commands.command(name="join")
     async def join(self, ctx):
