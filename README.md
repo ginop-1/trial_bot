@@ -17,7 +17,7 @@ cd trial_bot
 python3 -m venv venv
 . venv/bin/activate
 pip3 install -r requirements.txt
-python3 src/main.py
+python3 src/bot.py
 ```
 
 ### Usage
