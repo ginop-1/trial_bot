@@ -5,9 +5,10 @@ load_dotenv()
 
 
 class storage:
-    """Class that only contains constant
-    (ex. Discord Token and my youtube-dl download option)
-    """
+    """Contains constants"""
+
+    def __init__(self) -> None:
+        pass
 
     TOKEN: str = os.getenv("DISCORD_TOKEN")
     GINO_ID: int = int(os.getenv("GINO"))
@@ -48,11 +49,3 @@ class storage:
         " ha il cazzo a uncinetto",
         " sei così tardo che per rispondere all’appello dici: prof mi sente?",
     )
-
-    ydl_opts = {
-        "format": "249/250/251",
-        "logtostderr": False,
-        "quiet": True,
-        "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-        "options": "-vn",
-    }
