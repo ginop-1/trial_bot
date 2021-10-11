@@ -17,10 +17,9 @@ class General(commands.Cog):
         self.bot: commands.Bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(minutes=2)
+    @tasks.loop(minutes=5)
     async def auto_leave_afk(self):
         voice = funcs.actual_voice_channel(self.bot)
-        # print(voice)
         if not voice:
             return
         if not voice.is_playing():
@@ -86,25 +85,27 @@ class General(commands.Cog):
         if search == "" or search is None:
             return await _page_not_found(ctx)
 
-        """
-        uncomment this lines for TTS
-        tts = gTTS(search, lang="it")
-        tts.save('yes.mp3')
-        
-        voice_client: nextcord.VoiceClient = nextcord.utils.get(
-            self.bot.voice_clients, guild=ctx.guild)
-        audio_source = nextcord.FFmpegPCMAudio(source='./yes.mp3')
-        try:
-            if not voice_client.is_playing():
-                voice_client.play(audio_source, after=None)
-        except AttributeError as err:
-            print("not in a voice channel")
-        """
         search = f"**{title}**:\n" + search.splitlines()[0]
         if len(search) >= stg.CHARS_LIMIT:
             # discord 2000 char limit
             search = search[: stg.CHARS_LIMITS]
         return await ctx.send(search)
+
+    @commands.command(name="tts")
+    async def tts(self, ctx, *argv):
+        """
+        Speak to voice channel, can also be used as gTTs setup template
+        """
+        text = " ".join(argv)
+        tts = gTTS(text, lang="it")
+        tts.save("speaking.mp3")
+        voice = funcs.actual_voice_channel(self.bot)
+        audio_source = nextcord.FFmpegPCMAudio(source="./speaking.mp3")
+        try:
+            if not voice.is_playing():
+                voice.play(audio_source, after=None)
+        except AttributeError as err:
+            print("not in a voice channel")
 
     @commands.command(name="killall")
     async def killall(self, ctx):
