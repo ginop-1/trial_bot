@@ -1,6 +1,5 @@
 from Utils.funcs import Functions as funcs
 from Utils.storage import storage as stg
-import asyncio
 import random
 import wikipedia_for_humans
 import nextcord
@@ -25,35 +24,6 @@ class General(commands.Cog):
         if not voice.is_playing():
             await voice.disconnect()
 
-    @commands.command(name="join")
-    async def join(self, ctx):
-        """
-        Join in a voice channel
-        """
-        if funcs.actual_voice_channel(self.bot) is not None:
-            return await ctx.send("Alread connected to a voice channel")
-        channel = ctx.author.voice.channel
-        connected = await channel.connect()
-        connected.play(
-            nextcord.FFmpegPCMAudio(
-                source="./sounds/user-joined-your-channel.mp3"
-            ),
-        )
-
-    @commands.command(name="leave")
-    async def leave(self, ctx):
-        voice = funcs.actual_voice_channel(self.bot)
-        if voice is None:
-            return
-        audio_source = nextcord.FFmpegPCMAudio(
-            source="./sounds/teamspeak_disconnect.mp3"
-        )
-        if not voice.is_playing():
-            voice.play(audio_source, after=None)
-        while voice.is_playing():
-            await asyncio.sleep(1)
-        await voice.disconnect()
-
     @commands.command(name="offendi")
     async def offend(self, ctx, *argv):
         words = " ".join(argv)
@@ -61,10 +31,8 @@ class General(commands.Cog):
         offese = stg.offese
         response = words + offese[random.randint(0, len(offese) - 1)]
         await ctx.send(response)
+        await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
-        if voice is None:
-            channel = ctx.author.voice.channel
-            voice = await channel.connect()
         tts = gTTS(response, lang="it")
         tts.save("yes.mp3")
         if not voice.is_playing():
@@ -87,7 +55,7 @@ class General(commands.Cog):
 
         search = f"**{title}**:\n" + search.splitlines()[0]
         if len(search) >= stg.CHARS_LIMIT:
-            # discord 2000 char limit
+            # discord 2000 chars limit
             search = search[: stg.CHARS_LIMITS]
         return await ctx.send(search)
 
@@ -99,6 +67,7 @@ class General(commands.Cog):
         text = " ".join(argv)
         tts = gTTS(text, lang="it")
         tts.save("speaking.mp3")
+        await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
         audio_source = nextcord.FFmpegPCMAudio(source="./speaking.mp3")
         try:

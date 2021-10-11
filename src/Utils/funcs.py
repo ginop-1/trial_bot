@@ -39,3 +39,12 @@ class Functions:
             color=red_color,
         )
         return embedvar
+
+    async def join(bot, ctx):
+        """
+        Join in a voice channel
+        """
+        if Functions.actual_voice_channel(bot) is not None:
+            return await ctx.send("Alread connected to a voice channel")
+        channel = ctx.author.voice.channel
+        return await channel.connect()

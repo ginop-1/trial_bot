@@ -33,10 +33,8 @@ class Music(commands.Cog):
             # not valid url
             self.song_queue.append(video_info["entries"][0])
 
+        await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
-
-        if voice is None:
-            voice = await ctx.author.voice.channel.connect()
 
         if not voice.is_playing():
             msg = await ctx.send(
