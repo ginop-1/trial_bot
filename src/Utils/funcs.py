@@ -40,11 +40,13 @@ class Functions:
         )
         return embedvar
 
-    async def join(bot, ctx):
+    async def join(bot, ctx, verbose=False):
         """
         Join in a voice channel
         """
         if Functions.actual_voice_channel(bot) is not None:
-            return await ctx.send("Alread connected to a voice channel")
+            if verbose:
+                return await ctx.send("Alread connected to a voice channel")
+            return
         channel = ctx.author.voice.channel
         return await channel.connect()

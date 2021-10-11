@@ -34,9 +34,11 @@ class General(commands.Cog):
         await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
         tts = gTTS(response, lang="it")
-        tts.save("yes.mp3")
+        tts.save("offend.mp3")
         if not voice.is_playing():
-            voice.play(nextcord.FFmpegPCMAudio(source="./yes.mp3"), after=None)
+            voice.play(
+                nextcord.FFmpegPCMAudio(source="./offend.mp3"), after=None
+            )
 
     @commands.command(name="wiki")
     async def wiki(self, ctx, *argv):
@@ -62,7 +64,7 @@ class General(commands.Cog):
     @commands.command(name="tts")
     async def tts(self, ctx, *argv):
         """
-        Speak to voice channel, can also be used as gTTs setup template
+        Speak to voice channel, can also be used as gTTS setup template
         """
         text = " ".join(argv)
         tts = gTTS(text, lang="it")
