@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 import youtube_dl
 import asyncio
 from Utils.funcs import Functions as funcs
@@ -8,7 +8,7 @@ from Utils.storage import storage as stg
 
 class Music(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.song_queue = []
 
     @commands.command(name="play", aliases=["p"])
@@ -43,7 +43,7 @@ class Music(commands.Cog):
                 embed=funcs.get_embed("Now Playing", -1, self.song_queue)
             )
             voice.play(
-                discord.FFmpegPCMAudio(
+                nextcord.FFmpegPCMAudio(
                     source=funcs.get_url_video(self.song_queue[0])
                 ),
                 after=lambda e: self.play_next(ctx, msg),
@@ -77,7 +77,7 @@ class Music(commands.Cog):
         except:
             pass
         vc.play(
-            discord.FFmpegPCMAudio(
+            nextcord.FFmpegPCMAudio(
                 source=funcs.get_url_video(self.song_queue[0])
             ),
             after=lambda e: self.play_next(ctx, msg),
@@ -87,10 +87,10 @@ class Music(commands.Cog):
     async def queue(self, ctx):
         if not len(self.song_queue):
             return await ctx.send(
-                embed=discord.Embed(title="No songs in queue")
+                embed=nextcord.Embed(title="No songs in queue")
             )
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Queue:",
                 color=0xFF0000,
                 description="\n".join(

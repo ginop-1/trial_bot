@@ -1,4 +1,4 @@
-import discord
+import nextcord
 import youtube_dl
 
 
@@ -19,7 +19,7 @@ class Functions:
     }
 
     def actual_voice_channel(bot):
-        return discord.utils.get(bot.voice_clients)
+        return nextcord.utils.get(bot.voice_clients)
 
     def get_url_video(video_info: dict):
         with youtube_dl.YoutubeDL(Functions.ydl_opts) as downloader:
@@ -32,7 +32,7 @@ class Functions:
     def get_embed(title: str, index: int, song_queue: dict()):
         red_color = 0xFF0000
         # print(song_queue)
-        embedvar = discord.Embed(
+        embedvar = nextcord.Embed(
             title=title,
             description=f"[{song_queue[index]['title']}]"
             + f"({Functions.get_url_video(song_queue[index])})",

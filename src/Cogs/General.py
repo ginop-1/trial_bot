@@ -1,10 +1,10 @@
-import discord
 from Utils.funcs import Functions as funcs
 from Utils.storage import storage as stg
 import asyncio
 import random
 import wikipedia_for_humans
-from discord.ext import commands, tasks
+import nextcord
+from nextcord.ext import commands, tasks
 from gtts import gTTS
 
 
@@ -14,7 +14,7 @@ class General(commands.Cog):
     """
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.auto_leave_afk.start()
 
     @tasks.loop(minutes=2)
@@ -36,7 +36,7 @@ class General(commands.Cog):
         channel = ctx.author.voice.channel
         connected = await channel.connect()
         connected.play(
-            discord.FFmpegPCMAudio(
+            nextcord.FFmpegPCMAudio(
                 source="./sounds/user-joined-your-channel.mp3"
             ),
         )
@@ -46,7 +46,7 @@ class General(commands.Cog):
         voice = funcs.actual_voice_channel(self.bot)
         if voice is None:
             return
-        audio_source = discord.FFmpegPCMAudio(
+        audio_source = nextcord.FFmpegPCMAudio(
             source="./sounds/teamspeak_disconnect.mp3"
         )
         if not voice.is_playing():
@@ -69,7 +69,7 @@ class General(commands.Cog):
         tts = gTTS(response, lang="it")
         tts.save("yes.mp3")
         if not voice.is_playing():
-            voice.play(discord.FFmpegPCMAudio(source="./yes.mp3"), after=None)
+            voice.play(nextcord.FFmpegPCMAudio(source="./yes.mp3"), after=None)
 
     @commands.command(name="wiki")
     async def wiki(self, ctx, *argv):
@@ -91,9 +91,9 @@ class General(commands.Cog):
         tts = gTTS(search, lang="it")
         tts.save('yes.mp3')
         
-        voice_client: discord.VoiceClient = discord.utils.get(
+        voice_client: nextcord.VoiceClient = nextcord.utils.get(
             self.bot.voice_clients, guild=ctx.guild)
-        audio_source = discord.FFmpegPCMAudio(source='./yes.mp3')
+        audio_source = nextcord.FFmpegPCMAudio(source='./yes.mp3')
         try:
             if not voice_client.is_playing():
                 voice_client.play(audio_source, after=None)
