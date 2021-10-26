@@ -24,6 +24,10 @@ class General(commands.Cog):
         if not voice.is_playing():
             await voice.disconnect()
 
+    @commands.command(name="ping")
+    async def ping(self, ctx, *argv):
+        await ctx.send(f"Pong! bot latency is {int(self.bot.latency*1000)}ms")
+
     @commands.command(name="offendi")
     async def offend(self, ctx, *argv):
         words = " ".join(argv)
@@ -61,7 +65,7 @@ class General(commands.Cog):
             search = search[: stg.CHARS_LIMITS]
         return await ctx.send(search)
 
-    @commands.command(name="tts")
+    @commands.command(name="tts", aliases=["TTS", "Tts"])
     async def tts(self, ctx, *argv):
         """
         Speak to voice channel, can also be used as gTTS setup template
