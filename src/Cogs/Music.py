@@ -11,7 +11,7 @@ class Music(commands.Cog):
         self.bot: commands.Bot = bot
         self.song_queue = []
 
-    @commands.command(name="play", aliases=["p"])
+    @commands.command(name="play", aliases=["P", "p"])
     async def play(self, ctx, *argv):
         url = " ".join(argv)  # get the url (or name) of video
 
@@ -36,7 +36,7 @@ class Music(commands.Cog):
         await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
 
-        if not voice.is_playing():
+        if not voice.is_playing() and len(self.song_queue) == 1:
             msg = await ctx.send(
                 embed=funcs.get_embed("Now Playing", -1, self.song_queue)
             )
@@ -81,22 +81,25 @@ class Music(commands.Cog):
             after=lambda e: self.play_next(ctx, msg),
         )
 
-    @commands.command(name="queue", aliases=["q"])
+    @commands.command(name="queue", aliases=["Q", "q"])
     async def queue(self, ctx):
-        if not len(self.song_queue):
+        if not self.song_queue:
             return await ctx.send(
                 embed=nextcord.Embed(title="No songs in queue")
             )
+        queue_list = "\n".join(
+            [
+                f"{i+1}\t- {song_title['title']}"
+                if i
+                else f"**Now Playing:** {song_title['title']}"
+                for i, song_title in enumerate(self.song_queue)
+            ]
+        )[: stg.CHARS_LIMIT]
         await ctx.send(
             embed=nextcord.Embed(
                 title="Queue:",
                 color=0xFF0000,
-                description="\n".join(
-                    [
-                        f"{i+1}\t- {song_title['title']}"
-                        for i, song_title in enumerate(self.song_queue)
-                    ]
-                )[: stg.CHARS_LIMIT],
+                description=queue_list,
             )
         )
 
