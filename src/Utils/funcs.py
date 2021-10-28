@@ -35,7 +35,7 @@ class Functions:
         embedvar = nextcord.Embed(
             title=title,
             description=f"[{song_queue[index]['title']}]"
-            + f"({Functions.get_url_video(song_queue[index])})",
+            + f"(https://www.youtube.com/watch?v={song_queue[0]['id']})",
             color=red_color,
         )
         return embedvar
