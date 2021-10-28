@@ -7,7 +7,13 @@ intents = nextcord.Intents.default()
 intents.members = True
 
 
-bot = commands.Bot(command_prefix="?", intents=intents)
+bot = commands.Bot(
+    command_prefix="?",
+    activity=nextcord.Activity(
+        type=nextcord.ActivityType.listening, name="?help"
+    ),
+    intents=intents,
+)
 
 # load all Cogs
 for filename in os.listdir("./src/Cogs"):
