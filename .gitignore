@@ -133,3 +133,4 @@ dmypy.json
 *.opus
 *.webm
 *.vscode
+/tmpsong

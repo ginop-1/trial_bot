@@ -1,6 +1,6 @@
 import nextcord
 from nextcord.ext import commands
-import youtube_dl
+import yt_dlp
 import asyncio
 from Utils.funcs import Functions as funcs
 from Utils.storage import storage as stg
@@ -15,35 +15,36 @@ class Music(commands.Cog):
     async def play(self, ctx, *argv):
         url = " ".join(argv)  # get the url (or name) of video
 
-        with youtube_dl.YoutubeDL({"extract_flat": True}) as downloader:
-            try:
-                video_info = downloader.extract_info(url, download=False)
-            except youtube_dl.DownloadError as e:
-                # not valid url (ex: Despacito)
-                video_info = downloader.extract_info(
-                    f"ytsearch:{url}", download=False
-                )
-        webpg_bsname = video_info["webpage_url_basename"]
-        if webpg_bsname == "watch":
-            # valid url
-            self.song_queue.append(video_info)
-        elif webpg_bsname == "playlist":
-            [self.song_queue.append(i) for i in video_info["entries"]]
+        url = funcs.get_url_video(guild_id=ctx.guild.id, url=url)
+        if not url:
+            # never gonna give u up
+            return await ctx.send(
+                "",
+                embed=nextcord.Embed(
+                    description=f"[Download there]"
+                    + f"(http://bitly.com/98K8eH)",
+                ),
+            )
+        wasEmpty = not bool(len(self.song_queue))
+
+        if isinstance(url, list):
+            self.song_queue = self.song_queue + url
         else:
-            # not valid url
-            self.song_queue.append(video_info["entries"][0])
+            print("not a list")
+            self.song_queue.append(url)
 
         await funcs.join(self.bot, ctx)
         voice = funcs.actual_voice_channel(self.bot)
 
-        if not voice.is_playing() and len(self.song_queue) == 1:
+        if not voice.is_playing() and wasEmpty:
             msg = await ctx.send(
                 embed=funcs.get_embed("Now Playing", -1, self.song_queue)
             )
+            funcs.download_audio(
+                guild_id=ctx.guild.id, video=self.song_queue[0]
+            )
             voice.play(
-                nextcord.FFmpegPCMAudio(
-                    source=funcs.get_url_video(self.song_queue[0])
-                ),
+                nextcord.FFmpegPCMAudio(source=self.song_queue[0]["url"]),
                 after=lambda e: self.play_next(ctx, msg),
             )
         else:
@@ -74,10 +75,9 @@ class Music(commands.Cog):
             msg = fut.result()
         except:
             pass
+        funcs.download_audio(guild_id=ctx.guild.id, video=self.song_queue[0])
         vc.play(
-            nextcord.FFmpegPCMAudio(
-                source=funcs.get_url_video(self.song_queue[0])
-            ),
+            nextcord.FFmpegPCMAudio(source=self.song_queue[0]["url"]),
             after=lambda e: self.play_next(ctx, msg),
         )
 
@@ -87,14 +87,14 @@ class Music(commands.Cog):
             return await ctx.send(
                 embed=nextcord.Embed(title="No songs in queue")
             )
-        queue_list = "\n".join(
-            [
-                f"{i+1}\t- {song_title['title']}"
-                if i
-                else f"**Now Playing:** {song_title['title']}"
-                for i, song_title in enumerate(self.song_queue)
-            ]
-        )[: stg.CHARS_LIMIT]
+        queue_list = [
+            f"{i+1}\t- {song_title['title']}"
+            if i
+            else f"**Now Playing:** {song_title['title']}"
+            for i, song_title in enumerate(self.song_queue)
+        ]
+        if len(queue_list) > 10:
+            queue_list = "\n".join(queue_list[:10]) + "\n..."
         await ctx.send(
             embed=nextcord.Embed(
                 title="Queue:",

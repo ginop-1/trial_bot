@@ -22,4 +22,5 @@ for filename in os.listdir("./src/Cogs"):
 
 # how to print all the commands
 # [print(i) for i in bot.walk_commands()]
-bot.run(stg.TOKEN)
+if __name__ == "__main__":
+    bot.run(stg.TOKEN)
