@@ -41,6 +41,7 @@ class Functions:
             "id": video["id"],
             "title": video["title"],
             "duration": video["duration"],
+            "time_elapsed": 0,
         }
 
     @staticmethod
@@ -74,7 +75,7 @@ class Functions:
             return False
 
     @staticmethod
-    def get_embed(title: str, index: int, song_queue: dict()):
+    def get_embed(title: str, index: int, song_queue: dict):
         red_color = 0xFF0000
         # print(song_queue)
         embedvar = nextcord.Embed(

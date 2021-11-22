@@ -1,6 +1,5 @@
 import nextcord
 from nextcord.ext import commands
-import yt_dlp
 import asyncio
 from Utils.funcs import Functions as funcs
 from Utils.storage import storage as stg
@@ -37,49 +36,38 @@ class Music(commands.Cog):
         voice = funcs.actual_voice_channel(self.bot)
 
         if not voice.is_playing() and wasEmpty:
-            msg = await ctx.send(
-                embed=funcs.get_embed("Now Playing", -1, self.song_queue)
-            )
-            funcs.download_audio(
-                guild_id=ctx.guild.id, video=self.song_queue[0]
-            )
-            voice.play(
-                nextcord.FFmpegPCMAudio(source=self.song_queue[0]["url"]),
-                after=lambda e: self.play_next(ctx, msg),
-            )
+            await self.start_songs_loop(ctx)
         else:
             await ctx.send(
                 embed=funcs.get_embed("Added to queue", -1, self.song_queue),
                 delete_after=30,
             )
 
-    def play_next(self, ctx, msg):
-        coro = msg.delete()
-        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
-        try:
-            fut.result()
-        except:
-            pass
-        try:
-            del self.song_queue[0]
-        except IndexError as e:
-            return
-        if not len(self.song_queue):
-            return
-        vc = funcs.actual_voice_channel(self.bot)
-        coro = ctx.send(
-            embed=funcs.get_embed("Now Playing", 0, self.song_queue)
-        )
-        fut = asyncio.run_coroutine_threadsafe(coro, self.bot.loop)
-        try:
-            msg = fut.result()
-        except:
-            pass
-        funcs.download_audio(guild_id=ctx.guild.id, video=self.song_queue[0])
-        vc.play(
-            nextcord.FFmpegPCMAudio(source=self.song_queue[0]["url"]),
-            after=lambda e: self.play_next(ctx, msg),
-        )
+    async def start_songs_loop(self, ctx):
+        voice = funcs.actual_voice_channel(self.bot)
+        while self.song_queue:
+            funcs.download_audio(
+                guild_id=ctx.guild.id, video=self.song_queue[0]
+            )
+            msg = await ctx.send(
+                embed=funcs.get_embed("Now playing", 0, self.song_queue)
+            )
+            voice.play(
+                nextcord.FFmpegPCMAudio(source=self.song_queue[0]["url"])
+            )
+            while voice.is_playing():
+                await asyncio.sleep(1)
+                try:
+                    self.song_queue[0]["time_elapsed"] += int(
+                        voice.is_playing()
+                    )
+                except IndexError as e:
+                    return
+            try:
+                del self.song_queue[0]
+            except IndexError as e:
+                return
+            await msg.delete()
 
     @commands.command(name="queue", aliases=["Q", "q"])
     async def queue(self, ctx):
@@ -88,18 +76,45 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(title="No songs in queue")
             )
         queue_list = [
-            f"{i+1}\t- {song_title['title']}"
+            f"{i+1}\t- {video['title']}"
             if i
-            else f"**Now Playing:** {song_title['title']}"
-            for i, song_title in enumerate(self.song_queue)
+            else f"**Now Playing:** {video['title']}"
+            for i, video in enumerate(self.song_queue)
         ]
-        if len(queue_list) > 10:
-            queue_list = "\n".join(queue_list[:10]) + "\n..."
+        queue_list = "\n".join(queue_list[:10])
+        if len(queue_list.split("\n")) > 10:
+            queue_list += "\n..."
         await ctx.send(
             embed=nextcord.Embed(
                 title="Queue:",
                 color=0xFF0000,
                 description=queue_list,
+            )
+        )
+
+    @commands.command(name="now_playing", aliases=["NP", "Np", "np"])
+    async def now_playing(self, ctx):
+        if not self.song_queue:
+            return await ctx.send("Nothing is playing rn")
+        curr_song = self.song_queue[0]
+        unicode_elapsed = round(
+            20 * (curr_song["time_elapsed"] / curr_song["duration"])
+        )
+        minutes_elapsed = int(curr_song["time_elapsed"] / 60)
+        minutes_total = int(curr_song["duration"] / 60)
+        seconds_elapsed = curr_song["time_elapsed"] - (minutes_elapsed * 60)
+        seconds_total = curr_song["duration"] - (minutes_total * 60)
+        description = (
+            f"{curr_song['title']}\n"
+            + f"{'━'*unicode_elapsed}🔘{'┅'*(20-unicode_elapsed)}\n"
+            + f"[{minutes_elapsed}:{seconds_elapsed}/"
+            + f"{minutes_total}:{seconds_total}]"
+        )
+        return await ctx.send(
+            embed=nextcord.Embed(
+                title="Now Playing:",
+                color=0xFF0000,
+                description=description,
             )
         )
 
