@@ -1,7 +1,7 @@
 import nextcord
 from nextcord.ext import commands
 import os
-from Utils.storage import storage as stg
+from Utils.Storage import storage as stg
 
 intents = nextcord.Intents.default()
 intents.members = True
