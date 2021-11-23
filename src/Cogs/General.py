@@ -16,7 +16,7 @@ class General(commands.Cog):
         self.bot: commands.Bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(minutes=5)
     async def auto_leave_afk(self):
         voice = Helpers.actual_voice_channel(self.bot)
         if not voice:
