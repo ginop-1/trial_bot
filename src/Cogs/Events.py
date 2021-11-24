@@ -7,7 +7,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("Bot is online")
+        print(f"{'~'*20}\nBot is online\n{'~'*20}")
 
 
 def setup(bot):

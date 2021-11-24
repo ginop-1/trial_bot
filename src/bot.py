@@ -3,9 +3,20 @@ from nextcord.ext import commands
 import os
 from Utils.Storage import storage as stg
 
+
+def clear_songs_files():
+    for f in os.listdir("./tmpsong"):
+        os.remove("./tmpsong/" + f)
+
+
+def load_cogs(bot):
+    for f in os.listdir("./src/Cogs"):
+        if f.endswith(".py"):
+            bot.load_extension(f"Cogs.{f[:-3]}")
+
+
 intents = nextcord.Intents.default()
 intents.members = True
-
 
 bot = commands.Bot(
     command_prefix="?",
@@ -15,12 +26,8 @@ bot = commands.Bot(
     intents=intents,
 )
 
-# load all Cogs
-for filename in os.listdir("./src/Cogs"):
-    if filename.endswith(".py"):
-        bot.load_extension(f"Cogs.{filename[:-3]}")
+clear_songs_files()
+load_cogs(bot)
 
-# how to print all the commands
-# [print(i) for i in bot.walk_commands()]
 if __name__ == "__main__":
     bot.run(stg.TOKEN)

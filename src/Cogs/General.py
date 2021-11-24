@@ -13,19 +13,19 @@ class General(commands.Cog):
     """
 
     def __init__(self, bot):
-        self.bot: commands.Bot = bot
+        self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=15)
     async def auto_leave_afk(self):
-        voice = Helpers.actual_voice_channel(self.bot)
-        if not voice:
+        voice = voice = nextcord.utils.get(self.bot.voice_clients)
+        if voice is None:
             return
         if len(voice.channel.members) == 1:
             await voice.disconnect()
 
     @commands.command(name="ping")
-    async def ping(self, ctx, *argv):
+    async def ping(self, ctx):
         """
         Debug: test bot connectivity
         """

@@ -24,10 +24,6 @@ class Helpers:
         }
 
     @staticmethod
-    def actual_voice_channel(bot):
-        return nextcord.utils.get(bot.voice_clients)
-
-    @staticmethod
     def download_audio(guild_id: int, video: dict):
         if video["duration"] > (20 * 60):
             return
@@ -40,7 +36,7 @@ class Helpers:
             "url": final_url,
             "id": video["id"],
             "title": video["title"],
-            "duration": video["duration"],
+            "duration": int(video["duration"]),
             "time_elapsed": 0,
         }
 
@@ -75,12 +71,12 @@ class Helpers:
             return False
 
     @staticmethod
-    def get_embed(title: str, index: int, song_queue: dict):
+    def get_embed(song: dict, title: str):
         red_color = 0xFF0000
         embedvar = nextcord.Embed(
             title=title,
-            description=f"[{song_queue[index]['title']}]"
-            + f"(https://www.youtube.com/watch?v={song_queue[index]['id']})",
+            description=f"[{song['title']}]"
+            + f"(https://www.youtube.com/watch?v={song['id']})",
             color=red_color,
         )
         return embedvar
@@ -163,7 +159,7 @@ class Helpers:
         """
         Join in a voice channel
         """
-        if Helpers.actual_voice_channel(bot) is not None:
+        if nextcord.utils.get(bot.voice_clients, guild=ctx.guild) is not None:
             if verbose:
                 return await ctx.send("Alread connected to a voice channel")
             return
