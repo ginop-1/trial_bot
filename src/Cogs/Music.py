@@ -187,7 +187,7 @@ class Music(commands.Cog):
         vc_connection = Helpers.vc_request(voice, ctx)
         if vc_connection != "safe":
             return await ctx.send(vc_connection)
-        local_queue = self.song_queue[ctx.guild.id]
+        local_queue = self.bot.song_queue[ctx.guild.id]
         if not local_queue:
             return await ctx.send("Nothing is playing rn")
         del local_queue
