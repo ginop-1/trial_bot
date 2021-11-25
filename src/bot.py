@@ -26,6 +26,7 @@ bot = commands.Bot(
     intents=intents,
 )
 
+bot.song_queue = {}
 clear_songs_files()
 load_cogs(bot)
 

@@ -16,13 +16,9 @@ class General(commands.Cog):
         self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=10)
     async def auto_leave_afk(self):
-        voice = voice = nextcord.utils.get(self.bot.voice_clients)
-        if voice is None:
-            return
-        if len(voice.channel.members) == 1:
-            await voice.disconnect()
+        pass
 
     @commands.command(name="ping")
     async def ping(self, ctx):
@@ -32,11 +28,10 @@ class General(commands.Cog):
         await ctx.send(f"Pong! bot latency is {int(self.bot.latency*1000)}ms")
 
     @commands.command(name="offendi")
-    async def offend(self, ctx, *argv):
+    async def offend(self, ctx, *, words):
         """
         Shame the given person
         """
-        words = " ".join(argv)
         # IDK why but using directly stg.offese[index] not works
         offese = stg.offese
         response = words + offese[random.randint(0, len(offese) - 1)]
@@ -51,11 +46,10 @@ class General(commands.Cog):
             )
 
     @commands.command(name="wiki")
-    async def wiki(self, ctx, *argv):
+    async def wiki(self, ctx, *, words):
         """
         Search the given word / sentence on Wikipedia
         """
-        words = " ".join(argv)
 
         async def _page_not_found(ctx):
             return await ctx.send("Page not found")
@@ -76,15 +70,18 @@ class General(commands.Cog):
         return await ctx.send(search)
 
     @commands.command(name="tts", aliases=["TTS", "Tts"])
-    async def tts(self, ctx, *argv):
+    async def tts(self, ctx, *, text):
         """
         Speak to voice channel, can also be used as gTTS setup template
         """
-        text = " ".join(argv)
         tts = gTTS(text, lang="it")
         tts.save("speaking.mp3")
-        await Helpers.join(self.bot, ctx)
-        voice = Helpers.actual_voice_channel(self.bot)
+        voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        if voice is None:
+            voice = await Helpers.join(self.bot, ctx)
+        vc_connection = Helpers.vc_request(voice, ctx)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
         audio_source = nextcord.FFmpegPCMAudio(source="./speaking.mp3")
         try:
             if not voice.is_playing():

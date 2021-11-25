@@ -3,24 +3,29 @@ from nextcord.ext import commands
 import asyncio
 from Utils.Helpers import Helpers
 
+
 # get the latest n items of a list
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.song_queue = {}
 
     @commands.command(name="play", aliases=["P", "p"])
     async def play(self, ctx, *, url):
         """
         Play/search the given words/url from youtube
         """
-        if ctx.author.voice is None:
-            return await ctx.send("You are not in a voice channel")
 
-        if ctx.guild.id not in self.song_queue.keys():
-            self.song_queue[ctx.guild.id] = []
+        voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        vc_connection = Helpers.vc_request(voice, ctx, already_conn=False)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
 
-        local_queue = self.song_queue[ctx.guild.id]
+        loading_msg = await ctx.send("Loading...")
+
+        if ctx.guild.id not in self.bot.song_queue.keys():
+            self.bot.song_queue[ctx.guild.id] = []
+
+        local_queue = self.bot.song_queue[ctx.guild.id]
         url = Helpers.get_url_video(guild_id=ctx.guild.id, url=url)
         if not url:
             # never gonna give u up
@@ -37,8 +42,9 @@ class Music(commands.Cog):
         else:
             local_queue.append(url)
 
-        await Helpers.join(self.bot, ctx)
-        voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        if voice is None:
+            voice = await Helpers.join(self.bot, ctx)
+        await loading_msg.delete()
 
         if not voice.is_playing() and wasEmpty:
             await self.start_songs_loop(ctx)
@@ -49,7 +55,7 @@ class Music(commands.Cog):
             )
 
     async def start_songs_loop(self, ctx):
-        local_queue = self.song_queue[ctx.guild.id]
+        local_queue = self.bot.song_queue[ctx.guild.id]
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         while local_queue:
             Helpers.download_audio(guild_id=ctx.guild.id, video=local_queue[0])
@@ -74,7 +80,7 @@ class Music(commands.Cog):
         """
         Shows songs in queue
         """
-        local_queue = self.song_queue[ctx.guild.id]
+        local_queue = self.bot.song_queue[ctx.guild.id]
         if not local_queue:
             return await ctx.send(
                 embed=nextcord.Embed(title="No songs in queue")
@@ -101,7 +107,7 @@ class Music(commands.Cog):
         """
         Shows info about currently playing song
         """
-        local_queue = self.song_queue[ctx.guild.id]
+        local_queue = self.bot.song_queue[ctx.guild.id]
         if not local_queue:
             return await ctx.send("Nothing is playing rn")
         curr_song = local_queue[0]
@@ -136,8 +142,9 @@ class Music(commands.Cog):
         Skip the song
         """
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        if voice is None:
-            return print("not in a voice channel")
+        vc_connection = Helpers.vc_request(voice, ctx)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
         if voice.is_playing():
             await ctx.message.add_reaction("⏭")
             voice.stop()
@@ -148,8 +155,9 @@ class Music(commands.Cog):
         Pause the song
         """
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        if voice is None:
-            return print("not in a voice channel")
+        vc_connection = Helpers.vc_request(voice, ctx)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
         if voice.is_playing():
             await ctx.message.add_reaction("⏸")
             voice.pause()
@@ -162,8 +170,9 @@ class Music(commands.Cog):
         Resume the song
         """
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        if voice is None:
-            return print("not in a voice channel")
+        vc_connection = Helpers.vc_request(voice, ctx)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
         if not voice.is_playing():
             await ctx.message.add_reaction("▶️")
             return voice.resume()
@@ -175,8 +184,9 @@ class Music(commands.Cog):
         Stop the song
         """
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        if voice is None:
-            return print("not in a voice channel")
+        vc_connection = Helpers.vc_request(voice, ctx)
+        if vc_connection != "safe":
+            return await ctx.send(vc_connection)
         local_queue = self.song_queue[ctx.guild.id]
         if not local_queue:
             return await ctx.send("Nothing is playing rn")

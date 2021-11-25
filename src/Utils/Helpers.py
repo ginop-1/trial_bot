@@ -53,6 +53,8 @@ class Helpers:
                 video_info = downloader.extract_info(
                     video_info["url"], download=False
                 )
+            except IndexError as e:
+                return False
             video_type = video_info["webpage_url_basename"]
 
             if video_type == "watch" or video_type == video_info["id"]:
@@ -165,3 +167,32 @@ class Helpers:
             return
         channel = ctx.author.voice.channel
         return await channel.connect()
+
+    @staticmethod
+    def vc_request(voice, ctx, already_conn=True):
+        """
+        Check if user is connected to a voice channel and
+        if it's the same as the bot's one
+        """
+        if voice is None and already_conn is True:
+            return "I'm not in a voice channel"
+        if ctx.author.voice is None:
+            return "You are not in a voice channel"
+        author_vc_id = ctx.author.voice.channel.id
+        if voice is not None and author_vc_id != voice.channel.id:
+            return "I'm in another voice channel!"
+
+        return "safe"
+
+    def voice_activity(func):
+        """
+        Reset afk timeout if a voice activity is detected
+        """
+
+        # def wrapper(*args, **kwargs):
+        #     bot = args[0].bot
+        #     ctx = args[1]
+        #     bot.afk[ctx.guild.id] = False
+        #     func(*args, **kwargs)
+
+        # return wrapper
