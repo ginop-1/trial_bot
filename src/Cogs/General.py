@@ -17,7 +17,7 @@ class General(commands.Cog):
         self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(minutes=10)
     async def auto_leave_afk(self):
         queue = self.bot.songs_queue
         for id in queue.keys():
