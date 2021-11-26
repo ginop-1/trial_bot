@@ -17,10 +17,9 @@ class Helpers:
             "format": "249/250/251",
             "outtmpl": f"./tmpsong/{id}",
             "overwrites": True,
-            "logtostderr": True,
-            "quiet": False,
+            "logtostderr": False,
+            "quiet": True,
             "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-            "options": "-vn",
         }
 
     @staticmethod
@@ -41,7 +40,7 @@ class Helpers:
         }
 
     @staticmethod
-    def get_url_video(guild_id: int, url: str):
+    def get_url_video(guild_id: int, url: str) -> list:
         with yt_dlp.YoutubeDL(Helpers.ydl_opts(guild_id)) as downloader:
             try:
                 video_info = downloader.extract_info(url, download=False)
@@ -63,7 +62,7 @@ class Helpers:
                     final_url = video_info["url"]
                 else:
                     final_url = f"./tmpsong/{guild_id}"
-                return Helpers.buildSong(video_info, final_url)
+                return [Helpers.buildSong(video_info, final_url)]
             elif video_type == "playlist":
                 final_url = f"./tmpsong/{guild_id}"
                 return [

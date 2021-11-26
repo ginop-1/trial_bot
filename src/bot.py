@@ -1,4 +1,4 @@
-import nextcord
+from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
 from Utils.Storage import storage as stg
@@ -15,18 +15,16 @@ def load_cogs(bot):
             bot.load_extension(f"Cogs.{f[:-3]}")
 
 
-intents = nextcord.Intents.default()
+intents = Intents.default()
 intents.members = True
 
 bot = commands.Bot(
     command_prefix="?",
-    activity=nextcord.Activity(
-        type=nextcord.ActivityType.listening, name="?help"
-    ),
+    activity=Activity(type=ActivityType.listening, name="?help"),
     intents=intents,
 )
 
-bot.song_queue = {}
+bot.songs_queue = {}
 clear_songs_files()
 load_cogs(bot)
 

@@ -4,7 +4,6 @@ import asyncio
 from Utils.Helpers import Helpers
 
 
-# get the latest n items of a list
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -22,10 +21,15 @@ class Music(commands.Cog):
 
         loading_msg = await ctx.send("Loading...")
 
-        if ctx.guild.id not in self.bot.song_queue.keys():
-            self.bot.song_queue[ctx.guild.id] = []
+        if ctx.guild.id not in self.bot.songs_queue.keys():
+            self.bot.songs_queue[ctx.guild.id] = {
+                "songs_list": [],
+                "loop": False,
+                "pause": False,
+                "afk": False,
+            }
 
-        local_queue = self.bot.song_queue[ctx.guild.id]
+        local_queue = self.bot.songs_queue[ctx.guild.id]["songs_list"]
         url = Helpers.get_url_video(guild_id=ctx.guild.id, url=url)
         if not url:
             # never gonna give u up
@@ -37,10 +41,7 @@ class Music(commands.Cog):
             )
         wasEmpty = not bool(len(local_queue))
 
-        if isinstance(url, list):
-            local_queue = local_queue + url
-        else:
-            local_queue.append(url)
+        local_queue.extend(url)
 
         if voice is None:
             voice = await Helpers.join(self.bot, ctx)
@@ -55,24 +56,27 @@ class Music(commands.Cog):
             )
 
     async def start_songs_loop(self, ctx):
-        local_queue = self.bot.song_queue[ctx.guild.id]
+        local_queue = self.bot.songs_queue[ctx.guild.id]["songs_list"]
         voice = nextcord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         while local_queue:
+            self.bot.songs_queue[ctx.guild.id]["afk"] = False
             Helpers.download_audio(guild_id=ctx.guild.id, video=local_queue[0])
             msg = await ctx.send(
                 embed=Helpers.get_embed(local_queue[0], "Now playing")
             )
             voice.play(nextcord.FFmpegPCMAudio(source=local_queue[0]["url"]))
-            while voice.is_playing():
+            while (
+                voice.is_playing()
+                or self.bot.songs_queue[ctx.guild.id]["pause"]
+            ):
                 await asyncio.sleep(1)
-                try:
+                if local_queue:
+                    # don't add times if the song is paused
                     local_queue[0]["time_elapsed"] += int(voice.is_playing())
-                except IndexError as e:
+                else:
                     return
-            try:
-                del local_queue[0]
-            except IndexError as e:
-                return
+            if local_queue:
+                local_queue.pop(0)
             await msg.delete()
 
     @commands.command(name="queue", aliases=["Q", "q"])
@@ -80,7 +84,7 @@ class Music(commands.Cog):
         """
         Shows songs in queue
         """
-        local_queue = self.bot.song_queue[ctx.guild.id]
+        local_queue = self.bot.songs_queue[ctx.guild.id]["songs_list"]
         if not local_queue:
             return await ctx.send(
                 embed=nextcord.Embed(title="No songs in queue")
@@ -107,7 +111,7 @@ class Music(commands.Cog):
         """
         Shows info about currently playing song
         """
-        local_queue = self.bot.song_queue[ctx.guild.id]
+        local_queue = self.bot.songs_queue[ctx.guild.id]["songs_list"]
         if not local_queue:
             return await ctx.send("Nothing is playing rn")
         curr_song = local_queue[0]
@@ -159,6 +163,7 @@ class Music(commands.Cog):
         if vc_connection != "safe":
             return await ctx.send(vc_connection)
         if voice.is_playing():
+            self.bot.songs_queue[ctx.guild.id]["pause"] = True
             await ctx.message.add_reaction("⏸")
             voice.pause()
         else:
@@ -174,6 +179,7 @@ class Music(commands.Cog):
         if vc_connection != "safe":
             return await ctx.send(vc_connection)
         if not voice.is_playing():
+            self.bot.songs_queue[ctx.guild.id]["pause"] = False
             await ctx.message.add_reaction("▶️")
             return voice.resume()
         await ctx.send("The audio is not paused.")
@@ -187,10 +193,10 @@ class Music(commands.Cog):
         vc_connection = Helpers.vc_request(voice, ctx)
         if vc_connection != "safe":
             return await ctx.send(vc_connection)
-        local_queue = self.bot.song_queue[ctx.guild.id]
+        local_queue = self.bot.songs_queue[ctx.guild.id]["songs_list"]
         if not local_queue:
             return await ctx.send("Nothing is playing rn")
-        del local_queue
+        local_queue.clear()
         await ctx.message.add_reaction("🛑")
         voice.stop()
 

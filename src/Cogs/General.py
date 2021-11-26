@@ -1,5 +1,6 @@
 from Utils.Helpers import Helpers
 from Utils.Storage import storage as stg
+from os import remove
 import random
 import wikipedia_for_humans
 import nextcord
@@ -16,9 +17,25 @@ class General(commands.Cog):
         self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=15)
     async def auto_leave_afk(self):
-        pass
+        queue = self.bot.songs_queue
+        for id in queue.keys():
+            if queue[id]["afk"] is True:
+                guild_obj = self.bot.get_guild(id)
+                voice = nextcord.utils.get(
+                    self.bot.voice_clients, guild=guild_obj
+                )
+                if voice is None:
+                    queue[id]["afk"] = True
+                    return
+                elif voice.is_playing():
+                    queue[id]["afk"] = False
+                    return
+                remove(queue[id]["songs_list"][0])
+                await voice.disconnect()
+            else:
+                queue[id]["afk"] = True
 
     @commands.command(name="ping")
     async def ping(self, ctx):
