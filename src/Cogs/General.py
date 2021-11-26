@@ -17,7 +17,7 @@ class General(commands.Cog):
         self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(seconds=10)
     async def auto_leave_afk(self):
         queue = self.bot.songs_queue
         for id in queue.keys():
@@ -32,7 +32,7 @@ class General(commands.Cog):
                 elif voice.is_playing():
                     queue[id]["afk"] = False
                     return
-                remove(queue[id]["songs_list"][0])
+                remove(f"./tmpsong/{id}")
                 await voice.disconnect()
             else:
                 queue[id]["afk"] = True
