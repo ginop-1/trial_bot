@@ -2,6 +2,48 @@ import nextcord
 import yt_dlp
 
 
+class Queue_msg(nextcord.ui.View):
+    def __init__(self, queue):
+        super().__init__(timeout=60 * 10)
+        self.pages = queue
+        self.page_n = 0
+        self.max_page_n = len(self.pages) // 10
+
+    async def activity(self, interaction):
+        msg = interaction.message
+        embed = nextcord.Embed(
+            title="Queue",
+            description=Helpers.get_pages(
+                self.pages, self.page_n * 10, (self.page_n + 1) * 10
+            ),
+            colour=0xF42F42,
+        )
+        embed.set_footer(text=f"Page {self.page_n+1}/{self.max_page_n+1}")
+        await msg.edit(embed=embed)
+
+    @nextcord.ui.button(label="⏮", custom_id="0")
+    async def first(self, button, interaction):
+        self.page_n = 0
+        await self.activity(interaction)
+
+    @nextcord.ui.button(label="◀", custom_id="1")
+    async def previous(self, button, interaction):
+        if self.page_n > 0:
+            self.page_n -= 1
+        await self.activity(interaction)
+
+    @nextcord.ui.button(label="▶", custom_id="2")
+    async def next(self, button, interaction):
+        if self.page_n < self.max_page_n:
+            self.page_n += 1
+        await self.activity(interaction)
+
+    @nextcord.ui.button(label="⏭", custom_id="3")
+    async def last(self, button, interaction):
+        self.page_n = self.max_page_n
+        await self.activity(interaction)
+
+
 class Helpers:
     """
     It contains useful function to clean up code
@@ -17,8 +59,8 @@ class Helpers:
             "format": "249/250/251",
             "outtmpl": f"./tmpsong/{id}",
             "overwrites": True,
-            "logtostderr": False,
-            "quiet": True,
+            "logtostderr": True,
+            "quiet": False,
             "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
         }
 
@@ -68,6 +110,8 @@ class Helpers:
                 return [
                     Helpers.buildSong(video, final_url)
                     for video in video_info["entries"]
+                    # deleted video
+                    if video["duration"] is not None
                 ]
             return False
 
@@ -83,77 +127,25 @@ class Helpers:
         return embedvar
 
     @staticmethod
-    async def createbook(bot, ctx, title, pages, **kwargs):
+    def get_pages(pages: list, start: int = 0, end: int = 10):
+        queue_text = [
+            f"{(str(n+start)+'.')}[{song['title']}](https://www.youtube.com/watch?v={song['id']})"
+            for n, song in enumerate(pages[start:end])
+        ]
+        return "\n".join(queue_text)
 
-        header = kwargs.get("header", "")  # String
-        results = kwargs.get("results", 0)  # Int
-
-        pagenum = 1
-
-        def get_results():
-            results_min = (pagenum - 1) * 8 + 1
-            if pagenum == len(pages):
-                results_max = results
-            else:
-                results_max = pagenum * 8
-            return f"Showing {results_min} - {results_max} results out of {results}"
-
-        pagemax = len(pages)
-        if results:
-            header = get_results()
-            if len(pages) == 0:
-                pagemax = 1
+    @staticmethod
+    async def createbook(ctx, title, pages):
 
         embed = nextcord.Embed(
             title=title,
-            description=f"{header}\n\n{pages[pagenum - 1]}",
+            description=Helpers.get_pages(pages, 0, 10),
             colour=0xF42F42,
         )
-        embed.set_footer(text=f"Page {pagenum}/{pagemax}")
-        msg = await ctx.send(embed=embed)
 
-        await msg.add_reaction("⬅️")
-        await msg.add_reaction("➡")
-
-        def check(reaction, user):
-            return user == ctx.author and str(reaction.emoji) in ["⬅️", "➡"]
-
-        while True:
-            try:
-                reaction, user = await bot.wait_for(
-                    "reaction_add", timeout=60, check=check
-                )
-                await msg.remove_reaction(reaction, user)
-
-                if str(reaction.emoji) == "⬅️":
-                    pagenum -= 1
-                    if pagenum < 1:
-                        pagenum = len(pages)
-
-                elif str(reaction.emoji) == "➡":
-                    pagenum += 1
-                    if pagenum > len(pages):
-                        pagenum = 1
-
-                header = get_results() if results else header
-                if str(reaction.emoji) == "⬅️" or str(reaction.emoji) == "➡":
-                    embed = nextcord.Embed(
-                        title=title,
-                        description=f"{header}\n\n{pages[pagenum - 1]}",
-                        colour=0xF42F42,
-                    )
-                    embed.set_footer(text=f"Page {pagenum}/{len(pages)}")
-                    await msg.edit(embed=embed)
-            except:
-                header = get_results() if results else header
-                embed = nextcord.Embed(
-                    title="FBot Server Status",
-                    description=f"{header}\n\n{pages[pagenum - 1]}",
-                    colour=0xF42F42,
-                )
-                embed.set_footer(text=f"Request timed out")
-                await msg.edit(embed=embed)
-                break
+        embed.set_footer(text=f"Page 1/{len(pages) // 10+1}")
+        components = Queue_msg(queue=pages)
+        await ctx.send(embed=embed, view=components)
 
     @staticmethod
     async def join(bot, ctx, verbose=False):

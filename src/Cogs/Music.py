@@ -33,10 +33,10 @@ class Music(commands.Cog):
         url = Helpers.get_url_video(guild_id=ctx.guild.id, url=url)
         if not url:
             # never gonna give u up
+            await loading_msg.delete()
             return await ctx.send(
                 embed=nextcord.Embed(
-                    description=f"[💎 Free Clash Royale gems 💎]"
-                    + f"(http://bitly.com/98K8eH)",
+                    description="Unsopported url, please use only youtube links."
                 )
             )
         wasEmpty = not bool(len(local_queue))
@@ -89,22 +89,8 @@ class Music(commands.Cog):
             return await ctx.send(
                 embed=nextcord.Embed(title="No songs in queue")
             )
-        queue_list = [
-            f"{i+1}\t- {video['title']}"
-            if i
-            else f"**Now Playing:** {video['title']}"
-            for i, video in enumerate(local_queue)
-        ]
-        queue_list = "\n".join(queue_list[:10])
-        if len(queue_list.split("\n")) > 10:
-            queue_list += "\n..."
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Queue:",
-                color=0xFF0000,
-                description=queue_list,
-            )
-        )
+
+        await Helpers.createbook(ctx, "Queue", local_queue)
 
     @commands.command(name="now_playing", aliases=["NP", "Np", "np"])
     async def now_playing(self, ctx):
