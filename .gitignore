@@ -129,8 +129,8 @@ dmypy.json
 .pyre/
 
 # custom
-*.mp3
-*.opus
-*.webm
 *.vscode
-/tmpsong
+*.yml
+jdk*
+*.jar
+logs

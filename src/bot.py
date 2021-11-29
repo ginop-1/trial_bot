@@ -4,11 +4,6 @@ import os
 from Utils.Storage import storage as stg
 
 
-def clear_songs_files():
-    for f in os.listdir("./tmpsong"):
-        os.remove("./tmpsong/" + f)
-
-
 def load_cogs(bot):
     for f in os.listdir("./src/Cogs"):
         if f.endswith(".py"):
@@ -19,14 +14,26 @@ intents = Intents.default()
 intents.members = True
 
 bot = commands.Bot(
-    command_prefix="?",
-    activity=Activity(type=ActivityType.listening, name="?help"),
+    command_prefix=stg.PREFIX,
     intents=intents,
 )
 
+bot._enable_debug_events = True
+
+
+@bot.event
+async def on_ready():
+    load_cogs(bot)
+    await bot.change_presence(
+        status=bot.status,
+        activity=Activity(
+            type=ActivityType.listening, name=f"{stg.PREFIX}help"
+        ),
+    )
+    print(f"{stg.PREFIX}start. Bot is ready")
+
+
 bot.songs_queue = {}
-clear_songs_files()
-load_cogs(bot)
 
 if __name__ == "__main__":
     bot.run(stg.TOKEN)

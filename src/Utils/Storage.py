@@ -12,6 +12,7 @@ class storage:
 
     TOKEN: str = os.getenv("DISCORD_TOKEN")
     GINO_ID: int = int(os.getenv("GINO"))
+    PREFIX: str = os.getenv("PREFIX")
     CHARS_LIMIT = 2000
 
     offese: list = (
