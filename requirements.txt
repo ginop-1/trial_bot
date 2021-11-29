@@ -4,3 +4,4 @@ python-dotenv==0.18.0
 nextcord==2.0.0a3
 wikipedia-for-humans==0.3.0
 yt-dlp==2021.11.10.1
+lavalink==3.1.4
