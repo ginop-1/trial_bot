@@ -1,7 +1,10 @@
 from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
-from Utils.Storage import storage as stg
+from Utils.Storage import Storage as stg
+import logging
+
+logging.disable(logging.CRITICAL)
 
 
 def load_cogs(bot):
