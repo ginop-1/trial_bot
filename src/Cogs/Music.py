@@ -4,9 +4,16 @@ import lavalink
 from nextcord.ext import commands
 from Utils.Helpers import Helpers
 from Utils.Lavalink import LavalinkVoiceClient
+from Utils.Storage import Storage as stg
 import random
+import lyricsgenius
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
-url_rx = re.compile("https?:\\/\\/(?:www\\.)?.+")  # noqa: W605
+# sp_rx = re.compile(
+#     "(?:spotify:|https:\/\/[a-z]+\.spotify\.com\/(track\/|user\/(.*)\/playlist\/))(.*)"
+# )
+yt_rx = re.compile("(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+")
 
 
 class Music(commands.Cog):
@@ -14,7 +21,6 @@ class Music(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-
         if not hasattr(
             bot, "lavalink"
         ):  # This ensures the client isn't overwritten during cog reloads.
@@ -22,8 +28,52 @@ class Music(commands.Cog):
             bot.lavalink.add_node(
                 "localhost", 7000, "testing", "eu", "default-node"
             )  # Host, Port, Password, Region, Name
-
+        self.sp = spotipy.Spotify(
+            auth_manager=SpotifyClientCredentials(
+                stg.SPOTIFY_ID, stg.SPOTIFY_SECRET
+            ),
+        )
         lavalink.add_event_hook(self.track_hook)
+
+    async def _parse_Spotify(self, query: str, player, requester_id: int, opts):
+        pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
+        if not pl or not pl["tracks"]:
+            return nextcord.Embed(title="No results found.")
+        for song in pl["tracks"]:
+            results = await player.node.get_tracks(song)
+            track = results["tracks"][0]
+            player.add(requester=requester_id, track=track)
+            if not player.is_playing:
+                await player.play()
+        return nextcord.Embed(
+            description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs."
+        )
+
+    async def _parse_Youtube(self, query: str, player, requester_id: int, opts):
+        if not yt_rx.match(query):
+            query = f"ytsearch:{query}"
+        results = await player.node.get_tracks(query)
+
+        if not results["tracks"]:
+            return nextcord.Embed(title="No results found.")
+
+        if results["loadType"] == "PLAYLIST_LOADED":
+            tracks = results["tracks"]
+            for track in tracks:
+                player.add(requester=requester_id, track=track)
+            if opts == "?shuffle" or opts == "?s":
+                random.shuffle(player.queue)
+            return nextcord.Embed(
+                title="Playlist added to queue.",
+                description=f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks',
+            )
+        else:
+            track = results["tracks"][0]
+            player.add(requester=requester_id, track=track)
+            return nextcord.Embed(
+                title="Added to queue.",
+                description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
+            )
 
     def cog_unload(self):
         """Cog unload handler. This removes any event hooks that were registered."""
@@ -40,14 +90,6 @@ class Music(commands.Cog):
             #  Ensure that the bot and command author share a mutual voicechannel.
 
         return guild_check
-
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(error.original)
-            # The above handles errors thrown in this cog and shows them to the user.
-            # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
-            # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
-            # if you want to do things differently.
 
     async def ensure_voice(self, ctx):
         """This check ensures that the bot and command author are in the same voicechannel."""
@@ -93,47 +135,32 @@ class Music(commands.Cog):
 
     async def track_hook(self, event):
         if isinstance(event, lavalink.events.QueueEndEvent):
-            # When this track_hook receives a "QueueEndEvent" from lavalink.py
-            # it indicates that there are no tracks left in the player's queue.
-            # To save on resources, we can tell the bot to disconnect from the voicechannel.
             guild_id = int(event.player.guild_id)
             guild = self.bot.get_guild(guild_id)
             await guild.voice_client.disconnect(force=True)
 
-    @commands.command(aliases=["p"])
-    async def play(self, ctx, *, query: str):
+    @commands.command(aliases=["p", "P", "Play"])
+    async def play(self, ctx, *args):
         """Searches and plays a song from a given query."""
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if not args:
+            return await ctx.send("Please provide a search query.")
 
+        if not args[0].startswith("?"):
+            opts, query = None, " ".join(args)
+        else:
+            opts, query = args[0], " ".join(args[1:])
+
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         query = query.strip("<>")
 
-        if not url_rx.match(query):
-            query = f"ytsearch:{query}"
-
-        results = await player.node.get_tracks(query)
-
-        if not results or not results["tracks"]:
-            return await ctx.send("Nothing found!")
-
-        embed = nextcord.Embed(color=nextcord.Color.blurple())
-
-        if results["loadType"] == "PLAYLIST_LOADED":
-            tracks = results["tracks"]
-
-            for track in tracks:
-                player.add(requester=ctx.author.id, track=track)
-
-            embed.title = "Playlist Enqueued!"
-            embed.description = (
-                f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks'
+        if query.startswith("https://open.spotify.com/"):
+            embed = await self._parse_Spotify(
+                query, player, ctx.author.id, opts
             )
         else:
-            track = results["tracks"][0]
-            embed.title = "Track Enqueued"
-            embed.description = (
-                f'[{track["info"]["title"]}]({track["info"]["uri"]})'
+            embed = await self._parse_Youtube(
+                query, player, ctx.author.id, opts
             )
-            player.add(requester=ctx.author.id, track=track)
 
         await ctx.send(embed=embed)
 
@@ -152,6 +179,47 @@ class Music(commands.Cog):
             f"FF track to **{lavalink.utils.format_time(track_time)}**"
         )
 
+    @commands.command(aliases=["lyric"])
+    async def lyrics(self, ctx):
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if not player.current:
+            return await ctx.send("Nothing playing.")
+        if not hasattr(self.bot.lavalink, "genius"):
+            self.bot.lavalink.genius = lyricsgenius.Genius(
+                stg.GENIUS_TOKEN, verbose=False
+            )
+        remove_re = r"[\(\[].*?[\)\]]"
+        genius = self.bot.lavalink.genius
+        title = re.sub(remove_re, "", player.current.title)
+        song = genius.search_song(title)
+        if song is None:
+            return await ctx.send("Couldn't find any lyrics.")
+        desc = re.sub(remove_re, "", song.lyrics)
+        desc.replace("\n\n", "\n")
+        embed = nextcord.Embed(
+            color=nextcord.Color.blurple(),
+            title=f"{song.title} - {song.artist}",
+            description=desc,
+        )
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def move(self, ctx, source: int, dest: int):
+        """Move a track in the queue."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        if not player.queue:
+            return await ctx.send("Nothing in queue.")
+
+        try:
+            player.queue[source], player.queue[dest] = (
+                player.queue[dest],
+                player.queue[source],
+            )
+        except ValueError:
+            return await ctx.send("Invalid positions.")
+
+        await ctx.send("Moved.")
+
     @commands.command(aliases=["forceskip"])
     async def skip(self, ctx):
         """Skips the current track."""
@@ -163,7 +231,7 @@ class Music(commands.Cog):
         await player.skip()
         await ctx.message.add_reaction("⏭")
 
-    @commands.command()
+    @commands.command(aliases=["Stop", "STOP"])
     async def stop(self, ctx):
         """Stops the player and clears its queue."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
@@ -332,6 +400,15 @@ class Music(commands.Cog):
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
         await ctx.send("*⃣ | Disconnected.")
+
+    # async def cog_command_error(self, ctx, error):
+    #     if isinstance(error, commands.CommandInvokeError):
+    #         pass
+    #         # await ctx.send(error.original)
+    #         # The above handles errors thrown in this cog and shows them to the user.
+    #         # This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
+    #         # which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
+    #         # if you want to do things differently.
 
 
 def setup(bot):

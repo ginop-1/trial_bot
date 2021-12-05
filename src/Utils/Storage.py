@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class storage:
+class Storage:
     """Contains constants"""
 
     def __init__(self) -> None:
@@ -13,6 +13,9 @@ class storage:
     TOKEN: str = os.getenv("DISCORD_TOKEN")
     GINO_ID: int = int(os.getenv("GINO"))
     PREFIX: str = os.getenv("PREFIX")
+    GENIUS_TOKEN: str = os.getenv("GENIUS_TOKEN")
+    SPOTIFY_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    SPOTIFY_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
     CHARS_LIMIT = 2000
 
     offese: list = (

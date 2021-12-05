@@ -1,5 +1,5 @@
 from Utils.Helpers import Helpers
-from Utils.Storage import storage as stg
+from Utils.Storage import Storage as stg
 import random
 import wikipedia_for_humans
 import nextcord
