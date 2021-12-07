@@ -10,9 +10,6 @@ import lyricsgenius
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# sp_rx = re.compile(
-#     "(?:spotify:|https:\/\/[a-z]+\.spotify\.com\/(track\/|user\/(.*)\/playlist\/))(.*)"
-# )
 yt_rx = re.compile("(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+")
 
 
@@ -33,25 +30,33 @@ class Music(commands.Cog):
                 stg.SPOTIFY_ID, stg.SPOTIFY_SECRET
             ),
         )
-        lavalink.add_event_hook(self.track_hook)
+        lavalink.add_event_hook(
+            self.track_start,
+            event=lavalink.events.TrackStartEvent,
+        )
+        lavalink.add_event_hook(
+            self.track_end,
+            event=lavalink.events.TrackEndEvent,
+        )
 
-    async def _parse_Spotify(self, query: str, player, requester_id: int, opts):
+    async def _parse_Spotify(self, query: str, player, ctx, opts):
         pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
         if not pl or not pl["tracks"]:
             return nextcord.Embed(title="No results found.")
         for song in pl["tracks"]:
             results = await player.node.get_tracks(song)
             track = results["tracks"][0]
-            player.add(requester=requester_id, track=track)
+            player.add(requester=ctx.author.id, track=track)
             if not player.is_playing:
                 await player.play()
         return nextcord.Embed(
             description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs."
         )
 
-    async def _parse_Youtube(self, query: str, player, requester_id: int, opts):
+    async def _parse_Youtube(self, query: str, player, ctx, opts):
         if not yt_rx.match(query):
             query = f"ytsearch:{query}"
+
         results = await player.node.get_tracks(query)
 
         if not results["tracks"]:
@@ -60,7 +65,7 @@ class Music(commands.Cog):
         if results["loadType"] == "PLAYLIST_LOADED":
             tracks = results["tracks"]
             for track in tracks:
-                player.add(requester=requester_id, track=track)
+                player.add(track=track, requester=ctx.author.id)
             if opts == "?shuffle" or opts == "?s":
                 random.shuffle(player.queue)
             return nextcord.Embed(
@@ -69,7 +74,7 @@ class Music(commands.Cog):
             )
         else:
             track = results["tracks"][0]
-            player.add(requester=requester_id, track=track)
+            player.add(track=track, requester=ctx.author.id)
             return nextcord.Embed(
                 title="Added to queue.",
                 description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
@@ -133,11 +138,21 @@ class Music(commands.Cog):
                     "You need to be in my voicechannel."
                 )
 
-    async def track_hook(self, event):
-        if isinstance(event, lavalink.events.QueueEndEvent):
-            guild_id = int(event.player.guild_id)
-            guild = self.bot.get_guild(guild_id)
-            await guild.voice_client.disconnect(force=True)
+    async def track_start(self, event):
+        embed = nextcord.Embed(
+            title=f"Now playing: {event.track.title}",
+            description=f"[{event.track.title}]({event.track.uri})",
+        )
+        requester = self.bot.get_user(int(event.track.requester))
+        channel = self.bot.get_channel(event.player.fetch("channel"))
+        duration = event.track.duration // 1000 - 2
+        embed.set_footer(text=f"Requested by {requester}")
+        msg = await channel.send(embed=embed)
+        event.player.store("message", msg)
+
+    async def track_end(self, event):
+        msg = event.player.fetch("message")
+        await msg.delete()
 
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
@@ -154,18 +169,16 @@ class Music(commands.Cog):
         query = query.strip("<>")
 
         if query.startswith("https://open.spotify.com/"):
-            embed = await self._parse_Spotify(
-                query, player, ctx.author.id, opts
-            )
+            embed = await self._parse_Spotify(query, player, ctx, opts)
         else:
-            embed = await self._parse_Youtube(
-                query, player, ctx.author.id, opts
-            )
+            embed = await self._parse_Youtube(query, player, ctx, opts)
 
-        await ctx.send(embed=embed)
-
-        if not player.is_playing:
+        if not player.is_playing and not player.paused:
+            player.store("channel", ctx.channel.id)
             await player.play()
+
+        if player.queue:
+            await ctx.send(embed=embed, delete_after=30)
 
     @commands.command(aliases=["ff", "FF", "Ff", "fastforward"])
     async def fast_forward(self, ctx, *, seconds: int):
@@ -204,11 +217,27 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def move(self, ctx, source: int, dest: int):
+    async def move(self, ctx, source, dest):
         """Move a track in the queue."""
+
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.queue:
             return await ctx.send("Nothing in queue.")
+
+        if source == "first":
+            source = 1
+        elif source == "last":
+            source = len(player.queue)
+        if dest == "first":
+            dest = 1
+        elif dest == "last":
+            dest = len(player.queue)
+
+        try:
+            source = int(source) - 1
+            dest = int(dest) - 1
+        except TypeError as e:
+            return await ctx.send("Please provide valid indexes")
 
         try:
             player.queue[source], player.queue[dest] = (
@@ -218,7 +247,7 @@ class Music(commands.Cog):
         except ValueError:
             return await ctx.send("Invalid positions.")
 
-        await ctx.send("Moved.")
+        await ctx.message.add_reaction("👌🏽")
 
     @commands.command(aliases=["forceskip"])
     async def skip(self, ctx):
