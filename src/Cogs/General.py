@@ -16,7 +16,7 @@ class General(commands.Cog):
         self.bot = bot
         self.auto_leave_afk.start()
 
-    @tasks.loop(seconds=15)
+    @tasks.loop(minutes=10)
     async def auto_leave_afk(self):
         """
         Automatically leaves if the bot is AFK
