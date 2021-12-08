@@ -38,6 +38,10 @@ class Music(commands.Cog):
             self.track_end,
             event=lavalink.events.TrackEndEvent,
         )
+        lavalink.add_event_hook(
+            self.queue_end,
+            event=lavalink.events.QueueEndEvent,
+        )
 
     async def _parse_Spotify(self, query: str, player, ctx, opts):
         pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
@@ -45,7 +49,10 @@ class Music(commands.Cog):
             return nextcord.Embed(title="No results found.")
         for song in pl["tracks"]:
             results = await player.node.get_tracks(song)
-            track = results["tracks"][0]
+            if results["tracks"]:
+                track = results["tracks"][0]
+            else:
+                continue
             player.add(requester=ctx.author.id, track=track)
             if not player.is_playing:
                 await player.play()
@@ -153,6 +160,11 @@ class Music(commands.Cog):
     async def track_end(self, event):
         msg = event.player.fetch("message")
         await msg.delete()
+
+    async def queue_end(self, event):
+        guild_id = int(event.player.guild_id)
+        guild = self.bot.get_guild(guild_id)
+        await guild.voice_client.disconnect(force=True)
 
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
