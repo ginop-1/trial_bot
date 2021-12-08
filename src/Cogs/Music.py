@@ -162,9 +162,10 @@ class Music(commands.Cog):
         await msg.delete()
 
     async def queue_end(self, event):
-        guild_id = int(event.player.guild_id)
-        guild = self.bot.get_guild(guild_id)
-        await guild.voice_client.disconnect(force=True)
+        pass
+        # guild_id = int(event.player.guild_id)
+        # guild = self.bot.get_guild(guild_id)
+        # await guild.voice_client.disconnect(force=True)
 
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
@@ -185,6 +186,7 @@ class Music(commands.Cog):
         else:
             embed = await self._parse_Youtube(query, player, ctx, opts)
 
+        player.afk = False
         if not player.is_playing and not player.paused:
             player.store("channel", ctx.channel.id)
             await player.play()
@@ -439,8 +441,10 @@ class Music(commands.Cog):
 
         player.queue.clear()
         await player.stop()
-        await self.connect_to(ctx.guild.id, None)
-        await ctx.send("*⃣ | Disconnected.")
+        guild_id = int(player.guild_id)
+        guild = self.bot.get_guild(guild_id)
+        await guild.voice_client.disconnect(force=True)
+        await ctx.message.add_reaction("👌🏽")
 
     # async def cog_command_error(self, ctx, error):
     #     if isinstance(error, commands.CommandInvokeError):

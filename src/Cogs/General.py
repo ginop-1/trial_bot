@@ -14,27 +14,31 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        # self.auto_leave_afk.start()
+        self.auto_leave_afk.start()
 
-    # @tasks.loop(minutes=10)
-    # async def auto_leave_afk(self):
-    #     queue = self.bot.songs_queue
-    #     for id in queue.keys():
-    #         if queue[id]["afk"] is True:
-    #             guild_obj = self.bot.get_guild(id)
-    #             voice = nextcord.utils.get(
-    #                 self.bot.voice_clients, guild=guild_obj
-    #             )
-    #             if voice is None:
-    #                 queue[id]["afk"] = True
-    #                 return
-    #             elif voice.is_playing():
-    #                 queue[id]["afk"] = False
-    #                 return
-    #             remove(f"./tmpsong/{id}")
-    #             await voice.disconnect()
-    #         else:
-    #             queue[id]["afk"] = True
+    @tasks.loop(seconds=15)
+    async def auto_leave_afk(self):
+        """
+        Automatically leaves if the bot is AFK
+        """
+        pl_manager = self.bot.lavalink.player_manager
+        players = self.bot.lavalink.player_manager.players
+        if not players:
+            return
+        for guild_id, player in players.copy().items():
+            if not player.is_connected:
+                pl_manager.remove(guild_id)
+                continue
+            if player.is_playing or player.paused:
+                player.afk = False
+                continue
+            elif player.afk:
+                guild = self.bot.get_guild(guild_id)
+                await guild.voice_client.disconnect(force=True)
+                pl_manager.remove(guild_id)
+                continue
+            player.afk = True
+        pass
 
     @commands.command(name="ping")
     async def ping(self, ctx):
