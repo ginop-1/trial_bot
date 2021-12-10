@@ -1,0 +1,82 @@
+import lavalink
+from nextcord.ext import commands
+from Utils.Lavalink import LavalinkVoiceClient
+
+
+class MusicBaseCog(commands.Cog):
+    """Base of all music related Cogs."""
+
+    def __init__(self, bot):
+        self.bot = bot
+        if not hasattr(
+            bot, "lavalink"
+        ):  # This ensures the client isn't overwritten during cog reloads.
+            bot.lavalink = lavalink.Client(bot.user.id)
+            bot.lavalink.add_node(
+                "localhost", 7000, "testing", "eu", "default-node"
+            )  # Host, Port, Password, Region, Name
+
+    def cog_unload(self):
+        """Cog unload handler. This removes any event hooks that were registered."""
+        self.bot.lavalink._event_hooks.clear()
+
+    async def cog_before_invoke(self, ctx):
+        """Command before-invoke handler."""
+        guild_check = ctx.guild is not None
+        #  This is essentially the same as `@commands.guild_only()`
+        #  except it saves us repeating ourselves (and also a few lines).
+
+        if guild_check:
+            await self.ensure_voice(ctx)
+            #  Ensure that the bot and command author share a mutual voicechannel.
+
+        return guild_check
+
+    async def ensure_voice(self, ctx):
+        """This check ensures that the bot and command author are in the same voicechannel."""
+        player = self.bot.lavalink.player_manager.create(
+            ctx.guild.id, endpoint=str(ctx.guild.region)
+        )
+        should_connect = ctx.command.name in ("play",)
+
+        if not ctx.author.voice or not ctx.author.voice.channel:
+
+            raise commands.CommandInvokeError("Join a voicechannel first.")
+
+        if not player.is_connected:
+            if not should_connect:
+                raise commands.CommandInvokeError("Not connected.")
+
+            permissions = ctx.author.voice.channel.permissions_for(ctx.me)
+
+            if (
+                not permissions.connect or not permissions.speak
+            ):  # Check user limit too?
+                raise commands.CommandInvokeError(
+                    "I need the `CONNECT` and `SPEAK` permissions."
+                )
+
+            player.store("channel", ctx.channel.id)
+            await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
+        else:
+            if int(player.channel_id) != ctx.author.voice.channel.id:
+                raise commands.CommandInvokeError(
+                    "You need to be in my voicechannel."
+                )
+
+        # async def cog_command_error(self, ctx, error):
+
+    #   if isinstance(error, commands.CommandInvokeError):
+    #     await ctx.send(error)
+    #   The above handles errors thrown in this cog and shows them to the user.
+    #   This shouldn't be a problem as the only errors thrown in this cog are from `ensure_voice`
+    #   which contain a reason string, such as "Join a voicechannel" etc. You can modify the above
+    #   if you want to do things differently.
+
+
+def setup(bot):
+    """
+    we don't need to add the cog to the bot because
+    it is already loaded in other Music Cogs
+    """
+    pass
