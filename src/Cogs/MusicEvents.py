@@ -1,9 +1,10 @@
 import nextcord
 from nextcord.ext import commands
+from Cogs.MusicBase import MusicBaseCog
 import lavalink
 
 
-class MusicEventsCog(commands.Cog):
+class MusicEventsCog(MusicBaseCog):
     def __init__(self, bot):
         self.bot = bot
         lavalink.add_event_hook(

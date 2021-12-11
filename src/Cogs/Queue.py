@@ -1,5 +1,5 @@
 from Cogs.MusicBase import MusicBaseCog
-from Utils import Helpers
+from Utils.Helpers import Helpers
 
 from nextcord.ext import commands
 import random
@@ -95,19 +95,24 @@ class QueueCog(MusicBaseCog):
         await ctx.send("Repeat " + ("enabled" if player.repeat else "disabled"))
 
     @commands.command()
-    async def remove(self, ctx, index: int):
+    async def remove(self, ctx, index):
         """Removes an item from the player's queue with the given index."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.queue:
             return await ctx.send("Nothing queued.")
 
+        if index == "first":
+            index = 1
+        elif index == "last":
+            index = len(player.queue)
+
         if index > len(player.queue) or index < 1:
             return await ctx.send(
                 f"Index has to be **between** 1 and {len(player.queue)}"
             )
 
-        removed = player.queue.pop(index - 1)  # Account for 0-index.
+        removed = player.queue.pop(index - 1)
 
         await ctx.send(f"Removed **{removed.title}** from the queue.")
 
