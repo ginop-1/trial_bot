@@ -1,0 +1,13 @@
+{
+  "PREFIX": <prefix>,
+  "DISCORD_TOKEN": <token>,
+  "GINO_ID": <>,
+  "GENIUS_TOKEN": <genius token>,
+  "SPOTIFY_CLIENT_ID": <spotify id>,
+  "SPOTIFY_CLIENT_SECRET": <spotify secret>,
+  "INSULTS": [
+    <1>,
+    <2>,
+    <3>,
+  ]
+}
