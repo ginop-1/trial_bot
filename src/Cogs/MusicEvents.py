@@ -1,5 +1,4 @@
 import nextcord
-from nextcord.ext import commands
 from Cogs.MusicBase import MusicBaseCog
 import lavalink
 
@@ -29,6 +28,7 @@ class MusicEventsCog(MusicBaseCog):
         requester = self.bot.get_user(int(event.track.requester))
         channel = self.bot.get_channel(event.player.fetch("channel"))
         embed.set_footer(text=f"Requested by {requester}")
+        embed.color = nextcord.Color.blurple()
         msg = await channel.send(embed=embed)
         event.player.store("message", msg)
 

@@ -26,7 +26,7 @@ class QueueCog(MusicBaseCog):
         try:
             source = int(source) - 1
             dest = int(dest) - 1
-        except TypeError as e:
+        except (TypeError, ValueError) as e:
             return await ctx.send("Please provide valid indexes")
 
         try:

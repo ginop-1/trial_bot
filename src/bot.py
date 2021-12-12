@@ -1,7 +1,7 @@
 from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
-from Utils.Storage import Storage as stg
+from Utils.DB import DB
 import logging
 
 logging.disable(logging.CRITICAL)
@@ -17,7 +17,7 @@ intents = Intents.default()
 intents.members = True
 
 bot = commands.Bot(
-    command_prefix=stg.PREFIX,
+    command_prefix=DB.PREFIX,
     intents=intents,
 )
 
@@ -29,14 +29,12 @@ async def on_ready():
     load_cogs(bot)
     await bot.change_presence(
         status=bot.status,
-        activity=Activity(
-            type=ActivityType.listening, name=f"{stg.PREFIX}help"
-        ),
+        activity=Activity(type=ActivityType.listening, name=f"{DB.PREFIX}help"),
     )
-    print(f"{stg.PREFIX}start. Bot is ready")
+    print(f"{DB.PREFIX}start. Bot is ready")
 
 
 bot.songs_queue = {}
 
 if __name__ == "__main__":
-    bot.run(stg.TOKEN)
+    bot.run(DB.TOKEN)

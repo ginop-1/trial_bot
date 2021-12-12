@@ -1,5 +1,5 @@
-from Utils import Helpers
-from Utils.Storage import Storage as stg
+from Utils.Helpers import Helpers
+from Utils.DB import DB
 from Cogs.MusicBase import MusicBaseCog
 
 import nextcord
@@ -22,8 +22,13 @@ class PlayCog(MusicBaseCog):
         self.bot = bot
         self.sp = spotipy.Spotify(
             auth_manager=SpotifyClientCredentials(
-                stg.SPOTIFY_ID, stg.SPOTIFY_SECRET
+                DB.SPOTIFY_ID,
+                DB.SPOTIFY_SECRET,
             ),
+        )
+        self.genius = lyricsgenius.Genius(
+            DB.GENIUS_TOKEN,
+            verbose=False,
         )
 
     async def _parse_Youtube(self, query: str, player, ctx, opts):
@@ -35,6 +40,8 @@ class PlayCog(MusicBaseCog):
         if not results["tracks"]:
             return nextcord.Embed(title="No results found.")
 
+        color = nextcord.Color.blurple()
+
         if results["loadType"] == "PLAYLIST_LOADED":
             tracks = results["tracks"]
             for track in tracks:
@@ -42,6 +49,7 @@ class PlayCog(MusicBaseCog):
             if opts == "?shuffle" or opts == "?s":
                 random.shuffle(player.queue)
             return nextcord.Embed(
+                color=color,
                 title="Playlist added to queue.",
                 description=f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks',
             )
@@ -49,6 +57,7 @@ class PlayCog(MusicBaseCog):
             track = results["tracks"][0]
             player.add(track=track, requester=ctx.author.id)
             return nextcord.Embed(
+                color=color,
                 title="Added to queue.",
                 description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
             )
@@ -67,7 +76,8 @@ class PlayCog(MusicBaseCog):
             if not player.is_playing:
                 await player.play()
         return nextcord.Embed(
-            description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs."
+            color=nextcord.Color.blurple(),
+            description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs.",
         )
 
     @commands.command(aliases=["p", "P", "Play"])
@@ -146,14 +156,9 @@ class PlayCog(MusicBaseCog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.current:
             return await ctx.send("Nothing playing.")
-        if not hasattr(self.bot.lavalink, "genius"):
-            self.bot.lavalink.genius = lyricsgenius.Genius(
-                stg.GENIUS_TOKEN, verbose=False
-            )
         remove_re = r"[\(\[].*?[\)\]]"
-        genius = self.bot.lavalink.genius
         title = re.sub(remove_re, "", player.current.title)
-        song = genius.search_song(title)
+        song = self.genius.search_song(title)
         if song is None:
             return await ctx.send("Couldn't find any lyrics.")
         desc = re.sub(remove_re, "", song.lyrics)
