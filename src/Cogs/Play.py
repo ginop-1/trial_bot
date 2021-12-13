@@ -6,7 +6,6 @@ from nextcord.ext import commands
 import nextcord
 from spotipy import SpotifyClientCredentials
 import spotipy
-import lyricsgenius
 import deezer
 
 import random
@@ -24,10 +23,6 @@ class PlayCog(MusicBaseCog):
                 DB.SPOTIFY_ID,
                 DB.SPOTIFY_SECRET,
             ),
-        )
-        self.genius = lyricsgenius.Genius(
-            DB.GENIUS_TOKEN,
-            verbose=False,
         )
         self.deezer = deezer.Client()
 
@@ -62,8 +57,13 @@ class PlayCog(MusicBaseCog):
                 description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
             )
 
-    async def _parse_Spotify(self, query: str, player, ctx, opts):
-        pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
+    async def _parse_notYoutube(
+        self, query: str, player, ctx, opts, source=None
+    ):
+        if source == "spotify":
+            pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
+        else:
+            pl = Helpers.get_Deezer_tracks(self.deezer, query, bool(opts))
         if not pl or not pl["tracks"]:
             return nextcord.Embed(title="No results found.")
         for song in pl["tracks"]:
@@ -80,9 +80,6 @@ class PlayCog(MusicBaseCog):
             description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs.",
         )
 
-    async def _parse_Deezer(self, query: str, player, ctx, opts):
-        pass
-
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
         """Searches and plays a song from a given query."""
@@ -98,9 +95,14 @@ class PlayCog(MusicBaseCog):
         query = query.strip("<>")
 
         if query.startswith("https://open.spotify.com/"):
-            embed = await self._parse_Spotify(query, player, ctx, opts)
-        elif query.startswith("https://deezer.com/"):
-            embed = await self._parse_Deezer(query, player, ctx, opts)
+            src = "spotify"
+        elif query.startswith("https://www.deezer.com/"):
+            src = "deezer"
+        else:
+            src = "youtube"
+
+        if src != "youtube":
+            embed = await self._parse_notYoutube(query, player, ctx, opts, src)
         else:
             embed = await self._parse_Youtube(query, player, ctx, opts)
 

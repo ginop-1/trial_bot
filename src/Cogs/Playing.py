@@ -1,13 +1,22 @@
 from Cogs.MusicBase import MusicBaseCog
+from Utils.DB import DB
 
 import nextcord
 from nextcord.ext import commands
 import lavalink
+import lyricsgenius
 
 import re
 
 
 class PlayingCog(MusicBaseCog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.genius = lyricsgenius.Genius(
+            DB.GENIUS_TOKEN,
+            verbose=False,
+        )
+
     @commands.command(aliases=["resume"])
     async def pause(self, ctx):
         """Pauses/Resumes the current track."""

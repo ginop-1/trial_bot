@@ -103,3 +103,17 @@ class Helpers:
                 for song in song_list
             ],
         }
+
+    @staticmethod
+    def get_Deezer_tracks(dz_client, url, shuffle=False):
+        pl = dz_client.get_playlist(url.split("/")[-1])
+        if shuffle:
+            random.shuffle(pl.tracks)
+        return {
+            "title": pl.title,
+            "tracks": [
+                f"ytsearch:{song.title} - {song.artist.name}"
+                for song in pl.tracks
+            ],
+        }
+        return
