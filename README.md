@@ -17,7 +17,7 @@
 - Install Java 13
 - Download and setup a [lavalink server](https://github.com/freyacodes/Lavalink/releases) \*
 - Edit `application.yml` for lavalink server
-- Edit `config.json.example` based on your needs and rename it no `config.json`
+- Edit `config.json.example` based on your needs and rename it to `config.json`
 - Start the lavalink server and the bot
 
 \* I personally host the bot on a Raspberry Pi (arm). If you're in the same situation you should use a [different lavalink build](https://github.com/Cog-Creators/Lavalink-Jars/releases)
