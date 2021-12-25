@@ -32,8 +32,8 @@ class General(commands.Cog):
                 player.afk = False
             elif player.afk:
                 guild = self.bot.get_guild(guild_id)
-                await guild.voice_client.disconnect(force=True)
-                pl_manager.remove(guild_id)
+                await guild.voice_client.disconnect(force=False)
+                # pl_manager.remove(guild_id)
             else:
                 player.afk = True
         pass

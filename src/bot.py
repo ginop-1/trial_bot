@@ -34,7 +34,5 @@ async def on_ready():
     print(f"{DB.PREFIX}start. Bot is ready")
 
 
-bot.songs_queue = {}
-
 if __name__ == "__main__":
     bot.run(DB.TOKEN)

@@ -1,5 +1,6 @@
 import lavalink
 from nextcord.ext import commands
+from nextcord.errors import ClientException
 from Utils.Lavalink import LavalinkVoiceClient
 
 
@@ -57,7 +58,11 @@ class MusicBaseCog(commands.Cog):
                 )
 
             player.store("channel", ctx.channel.id)
-            await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
+            try:
+                await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
+            except ClientException as e:
+                guild = self.bot.get_guild(ctx.author.guild.id)
+                await guild.voice_client.connect(timeout=60, reconnect=True)
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
                 raise commands.CommandInvokeError(
