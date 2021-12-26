@@ -92,7 +92,7 @@ class General(commands.Cog):
         """
         if not ctx.author.voice:
             return await ctx.send("You need to be in a voice channel!")
-        if ctx.message.author.id == DB.GINO_ID:
+        if ctx.message.author.id == DB.OWNER_ID:
             users = ctx.message.author.voice.channel.members
             for user in users:
                 await user.move_to(None, reason="Nibba")

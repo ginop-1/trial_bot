@@ -1,5 +1,6 @@
 import nextcord
 import lavalink
+from Utils.DB import DB
 
 
 class LavalinkVoiceClient(nextcord.VoiceClient):
@@ -19,7 +20,11 @@ class LavalinkVoiceClient(nextcord.VoiceClient):
         else:
             self.client.lavalink = lavalink.Client(client.user.id)
             self.client.lavalink.add_node(
-                "localhost", 7000, "testing", "eu", "default-node"
+                DB.LAVA_CREDENTIALS["host"],
+                DB.LAVA_CREDENTIALS["port"],
+                DB.LAVA_CREDENTIALS["password"],
+                "eu",
+                "default-node",
             )
             self.lavalink = self.client.lavalink
 

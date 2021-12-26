@@ -2,6 +2,7 @@ import lavalink
 from nextcord.ext import commands
 from nextcord.errors import ClientException
 from Utils.Lavalink import LavalinkVoiceClient
+from Utils.DB import DB
 
 
 class MusicBaseCog(commands.Cog):
@@ -14,8 +15,12 @@ class MusicBaseCog(commands.Cog):
         ):  # This ensures the client isn't overwritten during cog reloads.
             bot.lavalink = lavalink.Client(bot.user.id)
             bot.lavalink.add_node(
-                "localhost", 7000, "testing", "eu", "default-node"
-            )  # Host, Port, Password, Region, Name
+                DB.LAVA_CREDENTIALS["host"],
+                DB.LAVA_CREDENTIALS["port"],
+                DB.LAVA_CREDENTIALS["password"],
+                "eu",
+                "default-node",
+            )
 
     def cog_unload(self):
         """Cog unload handler. This removes any event hooks that were registered."""
@@ -69,7 +74,8 @@ class MusicBaseCog(commands.Cog):
                     "You need to be in my voicechannel."
                 )
 
-        # async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx, error):
+        print(f"ERROR IN {ctx.guild.name}: {error}")
 
     #   if isinstance(error, commands.CommandInvokeError):
     #     await ctx.send(error)

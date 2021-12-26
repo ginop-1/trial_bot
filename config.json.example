@@ -1,7 +1,8 @@
 {
+  "LAVALINK": {"host":"localhost","port":7000,"password":"testing"},
   "PREFIX": <prefix>,
   "DISCORD_TOKEN": <token>,
-  "GINO_ID": <>,
+  "OWNER_ID": <>,
   "GENIUS_TOKEN": <genius token>,
   "SPOTIFY_CLIENT_ID": <spotify id>,
   "SPOTIFY_CLIENT_SECRET": <spotify secret>,
