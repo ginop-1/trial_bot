@@ -57,10 +57,8 @@ class PlayCog(MusicBaseCog):
                 description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
             )
 
-    async def _parse_notYoutube(
-        self, query: str, player, ctx, opts, source=None
-    ):
-        if source == "spotify":
+    async def _parse_notYoutube(self, query: str, player, ctx, opts):
+        if query.startswith("https://open.spotify.com/"):
             pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
         else:
             pl = Helpers.get_Deezer_tracks(self.deezer, query, bool(opts))
@@ -94,17 +92,13 @@ class PlayCog(MusicBaseCog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         query = query.strip("<>")
 
-        if query.startswith("https://open.spotify.com/"):
-            src = "spotify"
-        elif query.startswith("https://www.deezer.com/"):
-            src = "deezer"
-        else:
-            src = "youtube"
-
-        if src != "youtube":
-            embed = await self._parse_notYoutube(query, player, ctx, opts, src)
-        else:
+        if (
+            query.startswith("https://www.youtube.com/")
+            or not "https://" in query
+        ):
             embed = await self._parse_Youtube(query, player, ctx, opts)
+        else:
+            embed = await self._parse_notYoutube(query, player, ctx, opts)
 
         if not player.is_playing and not player.paused:
             player.store("channel", ctx.channel.id)

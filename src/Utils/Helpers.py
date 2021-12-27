@@ -76,13 +76,15 @@ class Helpers:
 
     @staticmethod
     def get_Spotify_tracks(sp_client, url, shuffle=False):
-        try:
+        if "/playlist/" in url:
             result = sp_client.playlist(url)
-        except SpotifyException as e:
+        elif "/track/" in url:
             result = sp_client.track(url)
+        elif "/album/" in url:
+            result = sp_client.album(url)
         pl_name = result["name"]
         res_type = result["type"]
-        if res_type == "playlist":
+        if res_type in ("album", "playlist"):
             result = result["tracks"]
             song_list = result["items"]
             while result["next"]:
@@ -106,7 +108,13 @@ class Helpers:
 
     @staticmethod
     def get_Deezer_tracks(dz_client, url, shuffle=False):
-        pl = dz_client.get_playlist(url.split("/")[-1])
+        id = url.split("/")[-1]
+        if "/playlist/" in url:
+            pl = dz_client.get_playlist(id)
+        # elif "/track/" in url:
+        # pl = dz_client.track(url)
+        elif "/album/" in url:
+            pl = dz_client.get_album(id)
         if shuffle:
             random.shuffle(pl.tracks)
         return {
