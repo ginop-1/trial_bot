@@ -2,9 +2,8 @@ from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
 from Utils.DB import DB
-import logging
 
-logging.disable(logging.CRITICAL)
+test = False
 
 
 def load_cogs(bot):
@@ -23,13 +22,18 @@ bot = commands.Bot(
 
 bot._enable_debug_events = True
 
+bot_activity = Activity(
+    type=ActivityType.listening,
+    name=f"{f'{DB.PREFIX}help' if not test else 'TESTING'}",
+)
+
 
 @bot.event
 async def on_ready():
     load_cogs(bot)
     await bot.change_presence(
         status=bot.status,
-        activity=Activity(type=ActivityType.listening, name=f"{DB.PREFIX}help"),
+        activity=bot_activity,
     )
     print(f"{DB.PREFIX}start. Bot is ready")
 
