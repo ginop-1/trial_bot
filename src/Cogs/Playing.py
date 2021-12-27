@@ -64,6 +64,9 @@ class PlayingCog(MusicBaseCog):
 
     @commands.command(aliases=["lyric"])
     async def lyrics(self, ctx):
+        """
+        Search for playing song's lyrics
+        """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.current:
             return await ctx.send("Nothing playing.")
@@ -74,6 +77,7 @@ class PlayingCog(MusicBaseCog):
             return await ctx.send("Couldn't find any lyrics.")
         desc = re.sub(remove_re, "", song.lyrics)
         desc.replace("\n\n", "\n")
+        desc = re.sub(r"\b[1-9]+.*$", "", desc)
         embed = nextcord.Embed(
             color=nextcord.Color.blurple(),
             title=f"{song.title} - {song.artist}",
