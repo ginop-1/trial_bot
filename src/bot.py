@@ -3,8 +3,6 @@ from nextcord.ext import commands
 import os
 from Utils.DB import DB
 
-test = False
-
 
 def load_cogs(bot):
     for f in os.listdir("./src/Cogs"):
@@ -21,10 +19,11 @@ bot = commands.Bot(
 )
 
 bot._enable_debug_events = True
+bot.testing = True
 
 bot_activity = Activity(
     type=ActivityType.listening,
-    name=f"{f'{DB.PREFIX}help' if not test else 'TESTING'}",
+    name=f"{f'{DB.PREFIX}help' if not bot.testing else 'TESTING'}",
 )
 
 
