@@ -19,7 +19,7 @@ bot = commands.Bot(
 )
 
 bot._enable_debug_events = True
-bot.testing = True
+bot.testing = False
 
 bot_activity = Activity(
     type=ActivityType.listening,
