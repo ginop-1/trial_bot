@@ -81,7 +81,7 @@ class PlayingCog(MusicBaseCog):
         embed = nextcord.Embed(
             color=nextcord.Color.blurple(),
             title=f"{song.title} - {song.artist}",
-            description=desc,
+            description=desc[: DB.CHARS_LIMIT],
         )
         await ctx.send(embed=embed)
 
