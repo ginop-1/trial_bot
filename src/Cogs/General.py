@@ -76,7 +76,7 @@ class General(commands.Cog):
         except Exception as e:
             return await _page_not_found(ctx)
 
-        if search == "" or search is None:
+        if search in ("", None):
             return await _page_not_found(ctx)
 
         search = f"**{title}**:\n" + search.splitlines()[0]

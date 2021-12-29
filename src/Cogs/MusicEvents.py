@@ -39,9 +39,6 @@ class MusicEventsCog(MusicBaseCog):
 
     async def queue_end(self, event):
         pass
-        # guild_id = int(event.player.guild_id)
-        # guild = self.bot.get_guild(guild_id)
-        # await guild.voice_client.disconnect(force=True)
 
 
 def setup(bot):
