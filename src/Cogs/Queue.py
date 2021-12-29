@@ -1,5 +1,6 @@
 from Cogs.MusicBase import MusicBaseCog
 from Utils.Helpers import Helpers
+from lavalink import AudioTrack
 
 from nextcord.ext import commands
 import random
@@ -46,6 +47,10 @@ class QueueCog(MusicBaseCog):
 
         if not player.is_playing:
             return await ctx.send("Not playing.")
+
+        if player.queue and not isinstance(player.queue[0], AudioTrack):
+            song = player.queue.pop(0)
+            song = await Helpers.process_song(player, song, play=False)
 
         await player.skip()
         await ctx.message.add_reaction("⏭")

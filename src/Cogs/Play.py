@@ -59,20 +59,20 @@ class PlayCog(MusicBaseCog):
 
     async def _parse_notYoutube(self, query: str, player, ctx, opts):
         if query.startswith("https://open.spotify.com/"):
-            pl = Helpers.get_Spotify_tracks(self.sp, query, bool(opts))
+            pl = Helpers.get_Spotify_tracks(
+                self.sp, query, ctx.author.id, bool(opts)
+            )
         else:
-            pl = Helpers.get_Deezer_tracks(self.deezer, query, bool(opts))
+            pl = Helpers.get_Deezer_tracks(
+                self.deezer, query, ctx.author.id, bool(opts)
+            )
         if not pl or not pl["tracks"]:
             return nextcord.Embed(title="No results found.")
         for song in pl["tracks"]:
-            results = await player.node.get_tracks(song)
-            if results["tracks"]:
-                track = results["tracks"][0]
+            if not player.queue and not player.is_playing and not player.paused:
+                await Helpers.process_song(player, song, play=False)
             else:
-                continue
-            player.add(requester=ctx.author.id, track=track)
-            if not player.is_playing:
-                await player.play()
+                player.queue.append(song)
         return nextcord.Embed(
             color=nextcord.Color.blurple(),
             description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs.",

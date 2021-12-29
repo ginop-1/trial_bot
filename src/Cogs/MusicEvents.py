@@ -2,6 +2,8 @@ import nextcord
 from Cogs.MusicBase import MusicBaseCog
 import lavalink
 
+from Utils.Helpers import Helpers
+
 
 class MusicEventsCog(MusicBaseCog):
     def __init__(self, bot):
@@ -33,9 +35,15 @@ class MusicEventsCog(MusicBaseCog):
         event.player.store("message", msg)
 
     async def track_end(self, event):
-        msg = event.player.fetch("message")
+        player = event.player
+        msg = player.fetch("message")
         if msg:
             await msg.delete()
+        if player.queue and not isinstance(
+            player.queue[0], lavalink.AudioTrack
+        ):
+            song = player.queue.pop(0)
+            song = await Helpers.process_song(player, song, play=False)
 
     async def queue_end(self, event):
         pass

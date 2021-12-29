@@ -5,7 +5,7 @@ from spotipy import SpotifyException
 
 class Queue_msg(nextcord.ui.View):
     def __init__(self, queue):
-        super().__init__(timeout=60)
+        super().__init__(timeout=60*10)
         self.pages = queue
         self.page_n = 0
         self.max_page_n = len(self.pages) // 10
@@ -56,7 +56,8 @@ class Helpers:
     @staticmethod
     def get_pages(pages: list, start: int = 0, end: int = 10):
         queue_text = [
-            f"{(str(n+start+1)+'.')}[{song['title']}]({song['uri']})"
+            # f"{(str(n+start+1)+'.')}[{song['title']}]({song['uri']})"
+            f"{str(n+start+1)}.{song['title']}"
             for n, song in enumerate(pages[start:end])
         ]
         return "\n".join(queue_text)
@@ -75,7 +76,17 @@ class Helpers:
         await ctx.send(embed=embed, view=components)
 
     @staticmethod
-    def get_Spotify_tracks(sp_client, url, shuffle=False):
+    async def process_song(player, song, play=False):
+        results = await player.node.get_tracks(f"ytsearch:{song['title']}")
+        if not results["tracks"]:
+            return
+        track = results["tracks"][0]
+        player.add(requester=song["requester"], track=track, index=0)
+        if play:
+            await player.play()
+
+    @staticmethod
+    def get_Spotify_tracks(sp_client, url, requester, shuffle=False):
         if "/playlist/" in url:
             result = sp_client.playlist(url)
         elif "/track/" in url:
@@ -97,17 +108,23 @@ class Helpers:
         return {
             "title": pl_name,
             "tracks": [
-                f"ytsearch:{song['track']['name']}"
-                + f" - {song['track']['artists'][0]['name']}"
-                if res_type == "playlist"
-                else f"ytsearch:{song['name']}"
-                + f" - {song['artists'][0]['name']}"
+                {
+                    "title": f"{song['track']['name']}"
+                    + f" - {song['track']['artists'][0]['name']}",
+                    "requester": requester,
+                }
+                if res_type in ("playlist")
+                else {
+                    "title": f"{song['name']}"
+                    + f" - {song['artists'][0]['name']}",
+                    "requester": requester,
+                }
                 for song in song_list
             ],
         }
 
     @staticmethod
-    def get_Deezer_tracks(dz_client, url, shuffle=False):
+    def get_Deezer_tracks(dz_client, url, requester, shuffle=False):
         id = url.split("/")[-1]
         if "/playlist/" in url:
             pl = dz_client.get_playlist(id)
@@ -120,8 +137,10 @@ class Helpers:
         return {
             "title": pl.title,
             "tracks": [
-                f"ytsearch:{song.title} - {song.artist.name}"
+                {
+                    "title": f"{song.title} - {song.artist.name}",
+                    "requester": requester,
+                }
                 for song in pl.tracks
             ],
         }
-        return
