@@ -43,18 +43,24 @@ class PlayCog(MusicBaseCog):
                 player.add(track=track, requester=ctx.author.id)
             if opts in ("?shuffle", "?s"):
                 random.shuffle(player.queue)
-            return nextcord.Embed(
-                color=color,
-                title="Playlist added to queue.",
-                description=f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks',
+            return (
+                nextcord.Embed(
+                    color=color,
+                    title="Playlist added to queue.",
+                    description=f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks',
+                ),
+                None,
             )
         else:
             track = results["tracks"][0]
             player.add(track=track, requester=ctx.author.id)
-            return nextcord.Embed(
-                color=color,
-                title="Added to queue.",
-                description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
+            return (
+                nextcord.Embed(
+                    color=color,
+                    title="Added to queue.",
+                    description=f'[{track["info"]["title"]}]({track["info"]["uri"]})',
+                ),
+                30,
             )
 
     async def _parse_notYoutube(self, query: str, player, ctx, opts):
@@ -73,9 +79,12 @@ class PlayCog(MusicBaseCog):
                 await Helpers.process_song(player, song, play=False)
             else:
                 player.queue.append(song)
-        return nextcord.Embed(
-            color=nextcord.Color.blurple(),
-            description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs.",
+        return (
+            nextcord.Embed(
+                color=nextcord.Color.blurple(),
+                description=f"**{pl['title']}** added to queue - {len(pl['tracks'])} songs.",
+            ),
+            None,
         )
 
     @commands.command(aliases=["p", "P", "Play"])
@@ -98,16 +107,20 @@ class PlayCog(MusicBaseCog):
             query.startswith("https://www.youtube.com/")
             or not "https://" in query
         ):
-            embed = await self._parse_Youtube(query, player, ctx, opts)
+            embed, self_destroy = await self._parse_Youtube(
+                query, player, ctx, opts
+            )
         else:
-            embed = await self._parse_notYoutube(query, player, ctx, opts)
+            embed, self_destroy = await self._parse_notYoutube(
+                query, player, ctx, opts
+            )
 
         if not player.is_playing and not player.paused:
             player.store("channel", ctx.channel.id)
             await player.play()
 
         if player.queue:
-            await ctx.send(embed=embed, delete_after=30)
+            await ctx.send(embed=embed, delete_after=self_destroy)
 
 
 def setup(bot):
