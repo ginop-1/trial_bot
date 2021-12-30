@@ -119,7 +119,7 @@ class QueueCog(MusicBaseCog):
 
         removed = player.queue.pop(index - 1)
 
-        await ctx.send(f"Removed **{removed.title}** from the queue.")
+        await ctx.send(f"Removed **{removed['title']}** from the queue.")
 
     @commands.command(aliases=["dc"])
     async def disconnect(self, ctx):

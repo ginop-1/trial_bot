@@ -1,6 +1,6 @@
 import nextcord
 import random
-from spotipy import SpotifyException
+import os
 
 
 class Queue_msg(nextcord.ui.View):
@@ -10,7 +10,16 @@ class Queue_msg(nextcord.ui.View):
         self.page_n = 0
         self.max_page_n = len(self.pages) // 10
 
-    async def activity(self, interaction):
+    async def interaction_check(self, interaction):
+        id = interaction.data["custom_id"]
+        if id == "first":
+            self.page_n = 0
+        elif id == "previous" and self.page_n > 0:
+            self.page_n -= 1
+        elif id == "next" and self.page_n < self.max_page_n:
+            self.page_n += 1
+        elif id == "last":
+            self.page_n = self.max_page_n
         msg = interaction.message
         embed = nextcord.Embed(
             title="Queue",
@@ -21,28 +30,25 @@ class Queue_msg(nextcord.ui.View):
         )
         embed.set_footer(text=f"Page {self.page_n+1}/{self.max_page_n+1}")
         await msg.edit(embed=embed)
+        return True
 
-    @nextcord.ui.button(label="⏮")
+    @nextcord.ui.button(custom_id="first", emoji="first:877152666113949736")
     async def first(self, button, interaction):
-        self.page_n = 0
-        await self.activity(interaction)
+        pass
 
-    @nextcord.ui.button(label="◀")
+    @nextcord.ui.button(
+        custom_id="previous", emoji="previous:877152666046832670"
+    )
     async def previous(self, button, interaction):
-        if self.page_n > 0:
-            self.page_n -= 1
-        await self.activity(interaction)
+        pass
 
-    @nextcord.ui.button(label="▶")
+    @nextcord.ui.button(custom_id="next", emoji="next:877152666080387122")
     async def next(self, button, interaction):
-        if self.page_n < self.max_page_n:
-            self.page_n += 1
-        await self.activity(interaction)
+        pass
 
-    @nextcord.ui.button(label="⏭")
+    @nextcord.ui.button(custom_id="last", emoji="last:877152666009092126")
     async def last(self, button, interaction):
-        self.page_n = self.max_page_n
-        await self.activity(interaction)
+        pass
 
 
 class Helpers:
@@ -79,7 +85,7 @@ class Helpers:
     async def process_song(player, song, play=False):
         results = await player.node.get_tracks(f"ytsearch:{song['title']}")
         if not results["tracks"]:
-            return
+            raise
         track = results["tracks"][0]
         player.add(requester=song["requester"], track=track, index=0)
         if play:
