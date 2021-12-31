@@ -33,7 +33,8 @@ class PlayCog(MusicBaseCog):
         results = await player.node.get_tracks(query)
 
         if not results["tracks"]:
-            return nextcord.Embed(title="No results found.")
+            await ctx.send(embed=nextcord.Embed(title="No results found."))
+            return None, None
 
         color = nextcord.Color.blurple()
 
@@ -73,7 +74,8 @@ class PlayCog(MusicBaseCog):
                 self.deezer, query, ctx.author.id, bool(opts)
             )
         if not pl or not pl["tracks"]:
-            return nextcord.Embed(title="No results found.")
+            await ctx.send(embed=nextcord.Embed(title="No results found."))
+            return None, None
         for song in pl["tracks"]:
             if not player.queue and not player.is_playing and not player.paused:
                 await Helpers.process_song(player, song, play=False)
@@ -92,6 +94,7 @@ class PlayCog(MusicBaseCog):
         """Searches and plays a song from a given query."""
         if self.bot.testing and str(ctx.guild.id) != DB.TEST_GUILD_ID:
             return await ctx.send("Sto testando il bot, al momento è offline")
+
         if not args:
             return await ctx.send("Please provide a search query.")
 
@@ -119,7 +122,7 @@ class PlayCog(MusicBaseCog):
             player.store("channel", ctx.channel.id)
             await player.play()
 
-        if player.queue:
+        if player.queue and embed:
             await ctx.send(embed=embed, delete_after=self_destroy)
 
 

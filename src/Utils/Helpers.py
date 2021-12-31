@@ -1,11 +1,11 @@
 import nextcord
 import random
-import os
+from spotipy import SpotifyException
 
 
 class Queue_msg(nextcord.ui.View):
     def __init__(self, queue):
-        super().__init__(timeout=60*10)
+        super().__init__(timeout=60 * 10)
         self.pages = queue
         self.page_n = 0
         self.max_page_n = len(self.pages) // 10
@@ -93,12 +93,15 @@ class Helpers:
 
     @staticmethod
     def get_Spotify_tracks(sp_client, url, requester, shuffle=False):
-        if "/playlist/" in url:
-            result = sp_client.playlist(url)
-        elif "/track/" in url:
-            result = sp_client.track(url)
-        elif "/album/" in url:
-            result = sp_client.album(url)
+        try:
+            if "/playlist/" in url:
+                result = sp_client.playlist(url)
+            elif "/track/" in url:
+                result = sp_client.track(url)
+            elif "/album/" in url:
+                result = sp_client.album(url)
+        except SpotifyException:
+            return None
         pl_name = result["name"]
         res_type = result["type"]
         if res_type in ("album", "playlist"):
@@ -132,12 +135,15 @@ class Helpers:
     @staticmethod
     def get_Deezer_tracks(dz_client, url, requester, shuffle=False):
         id = url.split("/")[-1]
-        if "/playlist/" in url:
-            pl = dz_client.get_playlist(id)
-        # elif "/track/" in url:
-        # pl = dz_client.track(url)
-        elif "/album/" in url:
-            pl = dz_client.get_album(id)
+        try:
+            if "/playlist/" in url:
+                pl = dz_client.get_playlist(id)
+            # elif "/track/" in url:
+            # pl = dz_client.track(url)
+            elif "/album/" in url:
+                pl = dz_client.get_album(id)
+        except Exception:
+            return None
         if shuffle:
             random.shuffle(pl.tracks)
         return {
