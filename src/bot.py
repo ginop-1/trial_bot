@@ -1,6 +1,7 @@
 from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
+import sys
 from Utils.DB import DB
 
 
@@ -19,7 +20,8 @@ bot = commands.Bot(
 )
 
 bot._enable_debug_events = True
-bot.testing = False
+# testing mode is enabled by passing "test" as command line argument
+bot.testing = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 bot_activity = Activity(
     type=ActivityType.listening,
