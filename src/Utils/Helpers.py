@@ -82,14 +82,13 @@ class Helpers:
         await ctx.send(embed=embed, view=components)
 
     @staticmethod
-    async def process_song(player, song, play=False):
+    async def process_song(player, song):
         results = await player.node.get_tracks(f"ytsearch:{song['title']}")
         if not results["tracks"]:
-            raise
+            return None
         track = results["tracks"][0]
         player.add(requester=song["requester"], track=track, index=0)
-        if play:
-            await player.play()
+        return True
 
     @staticmethod
     def get_Spotify_tracks(sp_client, url, requester, shuffle=False):

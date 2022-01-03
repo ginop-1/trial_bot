@@ -78,7 +78,9 @@ class PlayCog(MusicBaseCog):
             return None, None
         for song in pl["tracks"]:
             if not player.queue and not player.is_playing and not player.paused:
-                await Helpers.process_song(player, song, play=False)
+                song = await Helpers.process_song(player, song)
+                if song is None:
+                    continue
             else:
                 player.queue.append(song)
         return (
@@ -92,7 +94,7 @@ class PlayCog(MusicBaseCog):
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
         """Searches and plays a song from a given query."""
-        if self.bot.testing and str(ctx.guild.id) != DB.TEST_GUILD_ID:
+        if self.bot.testing and str(ctx.guild.id) not in DB.TEST_GUILD_IDS:
             return await ctx.send("Sto testando il bot, al momento è offline")
 
         if not args:

@@ -42,8 +42,10 @@ class MusicEventsCog(MusicBaseCog):
         if player.queue and not isinstance(
             player.queue[0], lavalink.AudioTrack
         ):
-            song = player.queue.pop(0)
-            song = await Helpers.process_song(player, song, play=False)
+            song = None
+            while song is None:
+                song = player.queue.pop(0)
+                song = await Helpers.process_song(player, song)
 
     async def queue_end(self, event):
         pass

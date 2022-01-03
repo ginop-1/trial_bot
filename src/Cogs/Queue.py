@@ -44,13 +44,16 @@ class QueueCog(MusicBaseCog):
     async def skip(self, ctx):
         """Skips the current track."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+        # await ctx.send("ok")
 
         if not player.is_playing:
             return await ctx.send("Not playing.")
 
         if player.queue and not isinstance(player.queue[0], AudioTrack):
-            song = player.queue.pop(0)
-            song = await Helpers.process_song(player, song, play=False)
+            song = None
+            while song is None:
+                song = player.queue.pop(0)
+                song = await Helpers.process_song(player, song)
 
         await player.skip()
         await ctx.message.add_reaction("⏭")
@@ -121,7 +124,7 @@ class QueueCog(MusicBaseCog):
 
         await ctx.send(f"Removed **{removed['title']}** from the queue.")
 
-    @commands.command(aliases=["dc"])
+    @commands.command(aliases=["dc", "leave"])
     async def disconnect(self, ctx):
         """Disconnects the player from the voice channel and clears its queue."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
