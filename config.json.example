@@ -6,7 +6,7 @@
   "GENIUS_TOKEN": <genius token>,
   "SPOTIFY_CLIENT_ID": <spotify id>,
   "SPOTIFY_CLIENT_SECRET": <spotify secret>,
-  "TEST_GUILD_ID": <guild id>
+  "TEST_GUILD_IDS": [<guild id 1>, <guild id 1>]
   "INSULTS": [
     <1>,
     <2>,

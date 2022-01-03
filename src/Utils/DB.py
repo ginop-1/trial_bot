@@ -15,7 +15,7 @@ class DB:
     SPOTIFY_SECRET = config.get("SPOTIFY_CLIENT_SECRET")
     CHARS_LIMIT = 2000
     LAVA_CREDENTIALS = config.get("LAVALINK")
-    TEST_GUILD_ID = config.get("TEST_GUILD_ID")
+    TEST_GUILD_IDS = config.get("TEST_GUILD_IDS")
 
     INSULTS: list = config["INSULTS"]
 
