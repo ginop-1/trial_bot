@@ -28,3 +28,8 @@
 - Play Music from Youtube, Deezer, Spotify and SoundCloud
 - Scrape articles from Wikipedia
 - Shame people
+
+### Inviting to your server:
+
+https://discord.com/api/oauth2/authorize?client_id=826459660339904532&permissions=8&scope=bot%20applications.commands
+please be aware that i self-host the bot on a raspberryPi so it may not always be online
