@@ -39,5 +39,15 @@ async def on_ready():
     print(f"{DB.PREFIX}start. Bot is ready")
 
 
+@bot.slash_command(guild_ids=DB.TEST_GUILD_IDS)
+async def test_one(interaction):
+    await interaction.response.send_message("amogus")
+
+
+@bot.slash_command(guild_ids=DB.TEST_GUILD_IDS)
+async def test_two(interaction, message):
+    await interaction.response.send_message(f"{message}")
+
+
 if __name__ == "__main__":
     bot.run(DB.TOKEN)
