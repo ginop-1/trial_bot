@@ -32,6 +32,10 @@ class MusicBaseCog(commands.Cog):
         #  This is essentially the same as `@commands.guild_only()`
         #  except it saves us repeating ourselves (and also a few lines).
 
+        # checks if bot is in testing mode
+        if self.bot.testing and ctx.guild.id not in DB.TEST_GUILD_IDS:
+            return None
+
         if guild_check:
             await self.ensure_voice(ctx)
             #  Ensure that the bot and command author share a mutual voicechannel.

@@ -94,7 +94,9 @@ class PlayCog(MusicBaseCog):
     @commands.command(aliases=["p", "P", "Play"])
     async def play(self, ctx, *args):
         """Searches and plays a song from a given query."""
-        if self.bot.testing and str(ctx.guild.id) not in DB.TEST_GUILD_IDS:
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if player is None:
             return await ctx.send("Sto testando il bot, al momento è offline")
 
         if not args:
@@ -105,9 +107,7 @@ class PlayCog(MusicBaseCog):
         else:
             opts, query = args[0], " ".join(args[1:])
 
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         query = query.strip("<>")
-
         if (
             query.startswith("https://www.youtube.com/")
             or not "https://" in query
