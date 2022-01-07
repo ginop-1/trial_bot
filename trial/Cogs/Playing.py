@@ -1,5 +1,5 @@
-from Cogs.MusicBase import MusicBaseCog
-from Utils.DB import DB
+from .MusicBase import MusicBaseCog
+from trial.config import Config
 
 import nextcord
 from nextcord.ext import commands
@@ -13,7 +13,7 @@ class PlayingCog(MusicBaseCog):
     def __init__(self, bot):
         self.bot = bot
         self.genius = lyricsgenius.Genius(
-            DB.GENIUS_TOKEN,
+            Config.GENIUS_TOKEN,
             verbose=False,
         )
 
@@ -81,7 +81,7 @@ class PlayingCog(MusicBaseCog):
         embed = nextcord.Embed(
             color=nextcord.Color.blurple(),
             title=f"{song.title} - {song.artist}",
-            description=desc[: DB.CHARS_LIMIT],
+            description=desc[: Config.CHARS_LIMIT],
         )
         await ctx.send(embed=embed)
 

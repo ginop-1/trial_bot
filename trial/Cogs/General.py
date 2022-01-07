@@ -1,5 +1,5 @@
-from Utils.Helpers import Helpers
-from Utils.DB import DB
+from trial.Utils.Helpers import Helpers
+from trial.config import Config
 import random
 import wikipedia_for_humans
 import nextcord
@@ -50,7 +50,9 @@ class General(commands.Cog):
         """
         Shame the given person
         """
-        response = words + DB.INSULTS[random.randint(0, len(DB.INSULTS) - 1)]
+        response = (
+            words + Config.INSULTS[random.randint(0, len(Config.INSULTS) - 1)]
+        )
         await ctx.send(response)
         # await Helpers.join(self.bot, ctx)
         # voice = Helpers.actual_voice_channel(self.bot)
@@ -80,9 +82,9 @@ class General(commands.Cog):
             return await _page_not_found(ctx)
 
         search = f"**{title}**:\n" + search.splitlines()[0]
-        if len(search) >= DB.CHARS_LIMIT:
+        if len(search) >= Config.CHARS_LIMIT:
             # discord 2000 chars limit
-            search = search[: DB.CHARS_LIMITS]
+            search = search[: Config.CHARS_LIMITS]
         return await ctx.send(search)
 
     @commands.command(name="killall")
@@ -92,7 +94,7 @@ class General(commands.Cog):
         """
         if not ctx.author.voice:
             return await ctx.send("You need to be in a voice channel!")
-        if ctx.message.author.id == DB.OWNER_ID:
+        if ctx.message.author.id == Config.OWNER_ID:
             users = ctx.message.author.voice.channel.members
             for user in users:
                 await user.move_to(None, reason="Nibba")

@@ -1,8 +1,8 @@
 import nextcord
-from Cogs.MusicBase import MusicBaseCog
+from .MusicBase import MusicBaseCog
 import lavalink
 
-from Utils.Helpers import Helpers
+from trial.Utils.Helpers import Helpers
 
 
 class MusicEventsCog(MusicBaseCog):

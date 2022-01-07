@@ -1,8 +1,8 @@
 import lavalink
 from nextcord.ext import commands
 from nextcord.errors import ClientException
-from Utils.Lavalink import LavalinkVoiceClient
-from Utils.DB import DB
+from trial.Utils.LavalinkVC import LavalinkVoiceClient
+from trial.config import Config
 
 
 class MusicBaseCog(commands.Cog):
@@ -15,9 +15,9 @@ class MusicBaseCog(commands.Cog):
         ):  # This ensures the client isn't overwritten during cog reloads.
             bot.lavalink = lavalink.Client(bot.user.id)
             bot.lavalink.add_node(
-                DB.LAVA_CREDENTIALS["host"],
-                DB.LAVA_CREDENTIALS["port"],
-                DB.LAVA_CREDENTIALS["password"],
+                Config.LAVA_CREDENTIALS["host"],
+                Config.LAVA_CREDENTIALS["port"],
+                Config.LAVA_CREDENTIALS["password"],
                 "eu",
                 "default-node",
             )
@@ -33,7 +33,7 @@ class MusicBaseCog(commands.Cog):
         #  except it saves us repeating ourselves (and also a few lines).
 
         # checks if bot is in testing mode
-        if self.bot.testing and ctx.guild.id not in DB.TEST_GUILD_IDS:
+        if self.bot.testing and ctx.guild.id not in Config.TEST_GUILD_IDS:
             return None
 
         if guild_check:

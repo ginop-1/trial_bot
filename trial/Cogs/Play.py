@@ -1,6 +1,6 @@
-from Cogs.MusicBase import MusicBaseCog
-from Utils.Helpers import Helpers
-from Utils.DB import DB
+from .MusicBase import MusicBaseCog
+from trial.Utils.Helpers import Helpers
+from trial.config import Config
 
 from nextcord.ext import commands
 import nextcord
@@ -20,8 +20,8 @@ class PlayCog(MusicBaseCog):
         )
         self.sp = spotipy.Spotify(
             auth_manager=SpotifyClientCredentials(
-                DB.SPOTIFY_ID,
-                DB.SPOTIFY_SECRET,
+                Config.SPOTIFY_ID,
+                Config.SPOTIFY_SECRET,
             ),
         )
         self.deezer = deezer.Client()

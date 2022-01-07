@@ -1,5 +1,5 @@
-from Cogs.MusicBase import MusicBaseCog
-from Utils.Helpers import Helpers
+from .MusicBase import MusicBaseCog
+from trial.Utils.Helpers import Helpers
 from lavalink import AudioTrack
 
 from nextcord.ext import commands

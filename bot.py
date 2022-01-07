@@ -2,20 +2,20 @@ from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
 import os
 import sys
-from Utils.DB import DB
+from trial.config import Config
 
 
 def load_cogs(bot):
-    for f in os.listdir("./src/Cogs"):
+    for f in os.listdir("./trial/Cogs"):
         if f.endswith(".py"):
-            bot.load_extension(f"Cogs.{f[:-3]}")
+            bot.load_extension(f"trial.Cogs.{f[:-3]}")
 
 
 intents = Intents.default()
 intents.members = True
 
 bot = commands.Bot(
-    command_prefix=DB.PREFIX,
+    command_prefix=Config.PREFIX,
     intents=intents,
 )
 
@@ -25,7 +25,7 @@ bot.testing = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 bot_activity = Activity(
     type=ActivityType.listening,
-    name=f"{f'{DB.PREFIX}help' if not bot.testing else 'TESTING'}",
+    name=f"{f'{Config.PREFIX}help' if not bot.testing else 'TESTING'}",
 )
 
 
@@ -36,18 +36,18 @@ async def on_ready():
         status=bot.status,
         activity=bot_activity,
     )
-    print(f"{DB.PREFIX}start. Bot is ready")
+    print(f"{Config.PREFIX}start. Bot is ready")
 
 
-@bot.slash_command(guild_ids=DB.TEST_GUILD_IDS)
+@bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
 async def test_one(interaction):
     await interaction.response.send_message("amogus")
 
 
-@bot.slash_command(guild_ids=DB.TEST_GUILD_IDS)
+@bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
 async def test_two(interaction, message):
     await interaction.response.send_message(f"{message}")
 
 
 if __name__ == "__main__":
-    bot.run(DB.TOKEN)
+    bot.run(Config.TOKEN)

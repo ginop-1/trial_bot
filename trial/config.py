@@ -1,7 +1,7 @@
 import json
 
 
-class DB:
+class Config:
     """Database class"""
 
     with open("config.json", "r") as f:
