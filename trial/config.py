@@ -17,7 +17,7 @@ class Config:
     LAVA_CREDENTIALS = config.get("LAVALINK")
     TEST_GUILD_IDS = list(map(int, config.get("TEST_GUILD_IDS")))
 
-    INSULTS: list = config["INSULTS"]
+    INSULTS: list = config.get("INSULTS")
 
     def __init__(self) -> None:
         pass

@@ -41,7 +41,7 @@ async def on_ready():
 
 @bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
 async def test_one(interaction):
-    await interaction.response.send_message("amogus")
+    await interaction.response.send_message("TEST 1")
 
 
 @bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)

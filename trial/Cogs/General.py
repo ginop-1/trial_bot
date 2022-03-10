@@ -1,10 +1,7 @@
-from trial.Utils.Helpers import Helpers
 from trial.config import Config
 import random
 import wikipedia_for_humans
-import nextcord
 from nextcord.ext import commands, tasks
-from gtts import gTTS
 
 
 class General(commands.Cog):
@@ -90,11 +87,16 @@ class General(commands.Cog):
     @commands.command(name="killall")
     async def killall(self, ctx):
         """
-        Kick all the people in the voice channel (only works if you're gino)
+        Kick all the people in the voice channel
+        Only works if you're guild owner or your id is
+        in the configuraton file
         """
         if not ctx.author.voice:
             return await ctx.send("You need to be in a voice channel!")
-        if ctx.message.author.id == Config.OWNER_ID:
+        if (
+            ctx.message.author.id == Config.OWNER_ID
+            or ctx.message.author == ctx.guild.owner
+        ):
             users = ctx.message.author.voice.channel.members
             for user in users:
                 await user.move_to(None, reason="Nibba")
