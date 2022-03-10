@@ -37,15 +37,21 @@ class MusicEventsCog(MusicBaseCog):
     async def track_end(self, event):
         player = event.player
         msg = player.fetch("message")
-        if msg:
+        try:
             await msg.delete()
+        except nextcord.errors.NotFound:
+            # message already deleted
+            pass
         if player.queue and not isinstance(
             player.queue[0], lavalink.AudioTrack
         ):
             song = None
             while song is None:
-                song = player.queue.pop(0)
-                song = await Helpers.process_song(player, song)
+                try:
+                    song = player.queue.pop(0)
+                    song = await Helpers.process_song(player, song)
+                except IndexError as e:
+                    pass
 
     async def queue_end(self, event):
         pass

@@ -52,8 +52,11 @@ class QueueCog(MusicBaseCog):
         if player.queue and not isinstance(player.queue[0], AudioTrack):
             song = None
             while song is None:
-                song = player.queue.pop(0)
-                song = await Helpers.process_song(player, song)
+                try:
+                    song = player.queue.pop(0)
+                    song = await Helpers.process_song(player, song)
+                except IndexError as e:
+                    pass
 
         await player.skip()
         await ctx.message.add_reaction("⏭")
@@ -102,7 +105,7 @@ class QueueCog(MusicBaseCog):
         await ctx.message.add_reaction("🔁")
         await ctx.send("Repeat " + ("enabled" if player.repeat else "disabled"))
 
-    @commands.command()
+    @commands.command(aliases=["rm"])
     async def remove(self, ctx, index):
         """Removes an item from the player's queue with the given index."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)

@@ -16,7 +16,7 @@ class PlayCog(MusicBaseCog):
     def __init__(self, bot):
         self.bot = bot
         self.yt_rx = re.compile(
-            "(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+"
+            r"(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+"
         )
         self.sp = spotipy.Spotify(
             auth_manager=SpotifyClientCredentials(
