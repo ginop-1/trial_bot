@@ -21,11 +21,11 @@ bot = commands.Bot(
 
 bot._enable_debug_events = True
 # testing mode is enabled by passing "test" as command line argument
-bot.testing = len(sys.argv) > 1 and sys.argv[1] == "test"
+bot.testing = len(sys.argv) > 1 and sys.argv[1] == "debug"
 
 bot_activity = Activity(
     type=ActivityType.listening,
-    name=f"{f'{Config.PREFIX}help' if not bot.testing else 'TESTING'}",
+    name=f"{f'{Config.PREFIX}help' if not bot.testing else 'debug'}",
 )
 
 
