@@ -108,7 +108,7 @@ class PlayCog(MusicBaseCog):
             opts, query = args[0], " ".join(args[1:])
 
         query = query.strip("<>")
-        if self.yt_rx.match(query):
+        if self.yt_rx.match(query) or not query.startswith("https://"):
             embed, self_destroy = await self._parse_Youtube(
                 query, player, ctx, opts
             )
