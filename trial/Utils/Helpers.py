@@ -99,8 +99,11 @@ class Helpers:
                 result = sp_client.track(url)
             elif "/album/" in url:
                 result = sp_client.album(url)
+            else:
+                return None
         except SpotifyException:
             return None
+
         pl_name = result["name"]
         res_type = result["type"]
         if res_type in ("album", "playlist"):
@@ -141,6 +144,8 @@ class Helpers:
             # pl = dz_client.track(url)
             elif "/album/" in url:
                 pl = dz_client.get_album(id)
+            else:
+                return None
         except Exception:
             return None
         if shuffle:
