@@ -39,7 +39,10 @@ async def on_ready():
     print(f"{Config.PREFIX}start. Bot is ready")
 
 
+# this check is needed because if the list is empty
+# nextcord raise an exception
 if Config.TEST_GUILD_IDS:
+
     @bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
     async def test_one(interaction):
         await interaction.response.send_message("TEST 1")
