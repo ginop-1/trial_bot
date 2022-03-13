@@ -7,17 +7,23 @@ class Config:
     with open("config.json", "r") as f:
         config = json.load(f)
 
+    CHARS_LIMIT = 2000
+
+    # Required
     TOKEN = config.get("DISCORD_TOKEN")
-    OWNER_ID = config.get("OWNER_ID")
     PREFIX = config.get("PREFIX")
+    LAVA_CREDENTIALS = config.get("LAVALINK")
+
+    # Optionals
     GENIUS_TOKEN = config.get("GENIUS_TOKEN")
     SPOTIFY_ID = config.get("SPOTIFY_CLIENT_ID")
     SPOTIFY_SECRET = config.get("SPOTIFY_CLIENT_SECRET")
-    CHARS_LIMIT = 2000
-    LAVA_CREDENTIALS = config.get("LAVALINK")
-    TEST_GUILD_IDS = list(map(int, config.get("TEST_GUILD_IDS")))
+    try:
+        TEST_GUILD_IDS = tuple(map(int, config.get("TEST_GUILD_IDS")))
+    except TypeError as e:
+        TEST_GUILD_IDS = ()
+    OWNER_ID = config.get("OWNER_ID")
+    INSULTS: tuple = tuple(config.get("INSULTS"))
 
-    INSULTS: list = config.get("INSULTS")
-
-    def __init__(self) -> None:
+    def __init__() -> None:
         pass

@@ -39,14 +39,14 @@ async def on_ready():
     print(f"{Config.PREFIX}start. Bot is ready")
 
 
-@bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
-async def test_one(interaction):
-    await interaction.response.send_message("TEST 1")
+if Config.TEST_GUILD_IDS:
+    @bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
+    async def test_one(interaction):
+        await interaction.response.send_message("TEST 1")
 
-
-@bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
-async def test_two(interaction, message):
-    await interaction.response.send_message(f"{message}")
+    @bot.slash_command(guild_ids=Config.TEST_GUILD_IDS)
+    async def test_two(interaction, message):
+        await interaction.response.send_message(f"{message}")
 
 
 if __name__ == "__main__":

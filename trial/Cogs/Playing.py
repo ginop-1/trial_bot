@@ -12,10 +12,12 @@ import re
 class PlayingCog(MusicBaseCog):
     def __init__(self, bot):
         self.bot = bot
-        self.genius = lyricsgenius.Genius(
-            Config.GENIUS_TOKEN,
-            verbose=False,
-        )
+        if Config.GENIUS_TOKEN is not None:
+            self.genius = lyricsgenius.Genius(
+                Config.GENIUS_TOKEN, verbose=False
+            )
+        else:
+            self.genius = None
 
     @commands.command(aliases=["resume"])
     async def pause(self, ctx):
@@ -67,6 +69,11 @@ class PlayingCog(MusicBaseCog):
         """
         Search for playing song's lyrics
         """
+        if self.genius is None:
+            return await ctx.send(
+                "Bot has not been configured to display lyrics."
+            )
+        
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.current:
             return await ctx.send("Nothing playing.")

@@ -18,15 +18,18 @@ class PlayCog(MusicBaseCog):
         self.yt_rx = re.compile(
             r"(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+"
         )
-        self.sp = spotipy.Spotify(
-            auth_manager=SpotifyClientCredentials(
-                Config.SPOTIFY_ID,
-                Config.SPOTIFY_SECRET,
-            ),
-        )
+        # check if both spotify id and secret are not none
+        if not None in (Config.SPOTIFY_ID, Config.SPOTIFY_SECRET):
+            self.sp = spotipy.Spotify(
+                client_credentials_manager=SpotifyClientCredentials(
+                    Config.SPOTIFY_ID, Config.SPOTIFY_SECRET
+                )
+            )
+        else:
+            self.sp = None
         self.deezer = deezer.Client()
 
-    async def _parse_Youtube(self, query: str, player, ctx, opts):
+    async def _parse_Youtube(self, query: str, player, ctx, opts) -> tuple:
         if not self.yt_rx.match(query):
             query = f"ytsearch:{query}"
 
@@ -64,8 +67,11 @@ class PlayCog(MusicBaseCog):
                 30,
             )
 
-    async def _parse_notYoutube(self, query: str, player, ctx, opts):
+    async def _parse_notYoutube(self, query: str, player, ctx, opts) -> tuple:
         if query.startswith("https://open.spotify.com/"):
+            if self.sp is None:
+                await ctx.send("Spotify is not configured.")
+                return None, None
             pl = Helpers.get_Spotify_tracks(
                 self.sp, query, ctx.author.id, bool(opts)
             )
