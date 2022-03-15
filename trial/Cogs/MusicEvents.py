@@ -1,11 +1,11 @@
 import nextcord
-from .MusicBase import MusicBaseCog
+from .VoiceBase import VoiceBaseCog
 import lavalink
 
 from trial.Utils.Helpers import Helpers
 
 
-class MusicEventsCog(MusicBaseCog):
+class MusicEventsCog(VoiceBaseCog):
     def __init__(self, bot):
         self.bot = bot
         lavalink.add_event_hook(

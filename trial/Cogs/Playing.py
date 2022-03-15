@@ -1,4 +1,4 @@
-from .MusicBase import MusicBaseCog
+from .VoiceBase import VoiceBaseCog
 from trial.config import Config
 
 import nextcord
@@ -9,7 +9,7 @@ import lyricsgenius
 import re
 
 
-class PlayingCog(MusicBaseCog):
+class PlayingCog(VoiceBaseCog):
     def __init__(self, bot):
         self.bot = bot
         if Config.GENIUS_TOKEN is not None:

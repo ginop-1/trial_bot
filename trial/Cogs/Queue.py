@@ -1,4 +1,4 @@
-from .MusicBase import MusicBaseCog
+from .VoiceBase import VoiceBaseCog
 from trial.Utils.Helpers import Helpers
 from lavalink import AudioTrack
 
@@ -6,7 +6,7 @@ from nextcord.ext import commands
 import random
 
 
-class QueueCog(MusicBaseCog):
+class QueueCog(VoiceBaseCog):
     @commands.command()
     async def move(self, ctx, source, dest):
         """Move a track in the queue."""
@@ -126,27 +126,6 @@ class QueueCog(MusicBaseCog):
         removed = player.queue.pop(index - 1)
 
         await ctx.send(f"Removed **{removed['title']}** from the queue.")
-
-    @commands.command(aliases=["dc", "leave"])
-    async def disconnect(self, ctx):
-        """Disconnects the player from the voice channel and clears its queue."""
-        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
-
-        if not player.is_connected:
-            return await ctx.send("Not connected.")
-
-        if not ctx.author.voice or (
-            player.is_connected
-            and ctx.author.voice.channel.id != int(player.channel_id)
-        ):
-            return await ctx.send("You're not in my voice channel!")
-
-        player.queue.clear()
-        await player.stop()
-        guild_id = int(player.guild_id)
-        guild = self.bot.get_guild(guild_id)
-        await guild.voice_client.disconnect(force=True)
-        await ctx.message.add_reaction("👌🏽")
 
 
 def setup(bot):

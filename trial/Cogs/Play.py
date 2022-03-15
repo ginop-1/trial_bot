@@ -1,4 +1,4 @@
-from .MusicBase import MusicBaseCog
+from .VoiceBase import VoiceBaseCog
 from trial.Utils.Helpers import Helpers
 from trial.config import Config
 
@@ -12,7 +12,7 @@ import random
 import re
 
 
-class PlayCog(MusicBaseCog):
+class PlayCog(VoiceBaseCog):
     def __init__(self, bot):
         self.bot = bot
         self.yt_rx = re.compile(
