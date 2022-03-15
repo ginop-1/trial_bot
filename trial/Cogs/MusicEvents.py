@@ -23,6 +23,8 @@ class MusicEventsCog(VoiceBaseCog):
 
     async def track_start(self, event):
         event.player.afk = False
+        if event.track.uri.startswith("./"):  # local file
+            return
         embed = nextcord.Embed(
             title=f"Now playing",
             description=f"[{event.track.title}]({event.track.uri})",
@@ -39,8 +41,8 @@ class MusicEventsCog(VoiceBaseCog):
         msg = player.fetch("message")
         try:
             await msg.delete()
-        except nextcord.errors.NotFound:
-            # message already deleted
+        except (nextcord.errors.NotFound, AttributeError):
+            # message already deleted OR never sent (local files)
             pass
         if player.queue and not isinstance(
             player.queue[0], lavalink.AudioTrack
