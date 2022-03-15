@@ -47,18 +47,13 @@ class General(commands.Cog):
         """
         Shame the given person
         """
+        if not Config.INSULTS:
+            return await ctx.send("Insults are disabled")
+
         response = (
             words + Config.INSULTS[random.randint(0, len(Config.INSULTS) - 1)]
         )
         await ctx.send(response)
-        # await Helpers.join(self.bot, ctx)
-        # voice = Helpers.actual_voice_channel(self.bot)
-        # tts = gTTS(response, lang="it")
-        # tts.save("offend.mp3")
-        # if not voice.is_playing():
-        #     voice.play(
-        #         nextcord.FFmpegPCMAudio(source="./offend.mp3"), after=None
-        #     )
 
     @commands.command(name="wiki")
     async def wiki(self, ctx, *, words):
