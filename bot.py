@@ -4,6 +4,8 @@ import os
 import sys
 from trial.config import Config
 
+Config.load()
+
 
 def load_cogs(bot):
     for f in os.listdir("./trial/Cogs"):

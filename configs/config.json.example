@@ -1,5 +1,9 @@
 {
-  "LAVALINK": {"host":"localhost","port":7000,"password":"testing"},
+  "LAVALINK": {
+    "host":"localhost",
+    "port":7000,
+    "password":"testing"
+  },
   "PREFIX": <prefix>,
   "DISCORD_TOKEN": <token>,
   "OWNER_ID": <>,
@@ -7,9 +11,4 @@
   "SPOTIFY_CLIENT_ID": <spotify id>,
   "SPOTIFY_CLIENT_SECRET": <spotify secret>,
   "TEST_GUILD_IDS": [<guild id 1>, <guild id 1>]
-  "INSULTS": [
-    <1>,
-    <2>,
-    <3>,
-  ]
 }

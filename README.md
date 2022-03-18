@@ -19,17 +19,20 @@
 - Download and setup a [lavalink server](https://github.com/freyacodes/Lavalink/releases) \*
 - Edit `application.yml` for lavalink server
 - Edit `config.json.example` based on your needs and rename it to `config.json
-    - (DISCORD_TOKEN, PREFIX and LAVALINK are required, other parameters can be omitted if
-      you're not interested in them)
+  - have a look at [CONFIG.md](configs/config.MD) 
 - Start the lavalink server and the bot
 
 \* I personally host the bot on a Raspberry Pi (arm). If you're in the same situation you should use a [different lavalink build](https://github.com/Cog-Creators/Lavalink-Jars/releases)
+
+---
 
 ### Features:
 
 - Play Music from Youtube, Deezer, Spotify and SoundCloud
 - Scrape articles from Wikipedia
 - Shame people
+
+---
 
 ### Inviting to your server:
 
