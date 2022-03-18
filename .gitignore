@@ -135,3 +135,4 @@ jdk*
 *.jar
 logs
 *.json
+configs/insults.txt
