@@ -47,7 +47,7 @@ class VoiceBaseCog(commands.Cog):
         player = self.bot.lavalink.player_manager.create(
             ctx.guild.id, endpoint=str(ctx.guild.region)
         )
-        should_connect = ctx.command.name in ("play","tts","join")
+        should_connect = ctx.command.name in ("play", "tts", "join")
 
         if not ctx.author.voice or not ctx.author.voice.channel:
 

@@ -42,12 +42,13 @@ class VoiceCog(VoiceBaseCog):
         """
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         tts = gTTS(words, lang="it")
-        tts.save("./offend.mp3")
+        filename = f"./{ctx.guild.id}.mp3"
+        tts.save(filename)
         if player.is_playing:
             return await ctx.send(
                 "I'm playing something, wait for it to finish"
             )
-        audio_file = await player.node.get_tracks("./offend.mp3")
+        audio_file = await player.node.get_tracks(filename)
         audio_file = audio_file["tracks"][0]
         player.add(track=audio_file, requester=ctx.author.id)
         await player.play()
