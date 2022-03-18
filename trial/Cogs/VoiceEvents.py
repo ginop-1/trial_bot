@@ -1,11 +1,12 @@
 import nextcord
 from .VoiceBase import VoiceBaseCog
 import lavalink
+import os
 
 from trial.Utils.Helpers import Helpers
 
 
-class MusicEventsCog(VoiceBaseCog):
+class VoiceEventsCog(VoiceBaseCog):
     def __init__(self, bot):
         self.bot = bot
         lavalink.add_event_hook(
@@ -43,7 +44,10 @@ class MusicEventsCog(VoiceBaseCog):
             await msg.delete()
         except (nextcord.errors.NotFound, AttributeError):
             # message already deleted OR never sent (local files)
-            pass
+            try:
+                os.remove(f"./{player.guild_id}.mp3")
+            except FileNotFoundError:
+                pass
         if player.queue and not isinstance(
             player.queue[0], lavalink.AudioTrack
         ):
@@ -60,4 +64,4 @@ class MusicEventsCog(VoiceBaseCog):
 
 
 def setup(bot):
-    bot.add_cog(MusicEventsCog(bot))
+    bot.add_cog(VoiceEventsCog(bot))
