@@ -31,6 +31,7 @@
 - Play Music from Youtube, Deezer, Spotify and SoundCloud
 - Scrape articles from Wikipedia
 - Shame people
+- Speak using gTTS
 
 ---
 
