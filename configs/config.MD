@@ -1,7 +1,5 @@
 <h2 align="center"> CONFIGURATION PARAMETERS</h2>
 
----
-
 ### REQUIRED:
   - `DISCORD_TOKEN`: Token of your bot
   - `PREFIX`: Commands prefix
