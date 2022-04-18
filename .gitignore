@@ -136,3 +136,4 @@ jdk*
 logs
 *.json
 configs/insults.txt
+node_modules/
