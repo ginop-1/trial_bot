@@ -9,6 +9,8 @@ class Queue_msg(nextcord.ui.View):
         self.pages = queue
         self.page_n = 0
         self.max_page_n = len(self.pages) // 10
+        if not len(self.pages) % 10:
+            self.max_page_n -= 1
 
     async def interaction_check(self, interaction):
         id = interaction.data["custom_id"]
@@ -20,16 +22,16 @@ class Queue_msg(nextcord.ui.View):
             self.page_n += 1
         elif id == "last":
             self.page_n = self.max_page_n
-        msg = interaction.message
+        desc = Helpers.get_pages(
+            self.pages, self.page_n * 10, (self.page_n + 1) * 10
+        )
         embed = nextcord.Embed(
             title="Queue",
-            description=Helpers.get_pages(
-                self.pages, self.page_n * 10, (self.page_n + 1) * 10
-            ),
+            description=desc,
             colour=0xF42F42,
         )
         embed.set_footer(text=f"Page {self.page_n+1}/{self.max_page_n+1}")
-        await msg.edit(embed=embed)
+        await interaction.message.edit(embed=embed)
         return True
 
     @nextcord.ui.button(custom_id="first", emoji="first:877152666113949736")
@@ -76,8 +78,10 @@ class Helpers:
             description=Helpers.get_pages(pages, 0, 10),
             colour=0xF42F42,
         )
-
-        embed.set_footer(text=f"Page 1/{len(pages) // 10+1}")
+        n_pages = len(pages) // 10
+        if not len(pages) % 10:
+            n_pages -= 1
+        embed.set_footer(text=f"Page 1/{n_pages+1}")
         components = Queue_msg(queue=pages)
         await ctx.send(embed=embed, view=components)
 
