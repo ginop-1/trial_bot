@@ -1,6 +1,7 @@
 import nextcord
 import random
 from spotipy import SpotifyException
+from lavalink import AudioTrack
 
 
 class Queue_msg(nextcord.ui.View):
@@ -72,21 +73,44 @@ class Helpers:
 
     @staticmethod
     async def createbook(ctx, title, pages):
-
+        components = Queue_msg(queue=pages)
         embed = nextcord.Embed(
             title=title,
             description=Helpers.get_pages(pages, 0, 10),
             colour=0xF42F42,
         )
-        n_pages = len(pages) // 10
-        if not len(pages) % 10:
-            n_pages -= 1
-        embed.set_footer(text=f"Page 1/{n_pages+1}")
-        components = Queue_msg(queue=pages)
+        embed.set_footer(text=f"Page 1/{components.max_page_n+1}")
         await ctx.send(embed=embed, view=components)
 
     @staticmethod
+    async def add_song(player):
+        """
+        Add a song to the player queue if it's not already loaded
+
+        A song is loaded if it's type is lavalink.AudioTrack
+
+        :param player: The player to add the song to
+        :return: None
+        """
+        if not (player.queue and not isinstance(player.queue[0], AudioTrack)):
+            return
+
+        song = None
+        while song is None:
+            try:
+                song = player.queue.pop(0)
+                song = await Helpers.process_song(player, song)
+            except IndexError as e:
+                pass
+
+    @staticmethod
     async def process_song(player, song):
+        """
+        Process a song to be added to the player queue
+        :param player: The player to add the song to
+        :param song: The song to add
+        :return: The song to add
+        """
         results = await player.node.get_tracks(f"ytsearch:{song['title']}")
         if not results["tracks"]:
             return None

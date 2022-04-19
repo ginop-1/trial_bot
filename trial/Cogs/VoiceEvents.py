@@ -48,16 +48,8 @@ class VoiceEventsCog(VoiceBaseCog):
                 os.remove(f"./{player.guild_id}.mp3")
             except FileNotFoundError:
                 pass
-        if player.queue and not isinstance(
-            player.queue[0], lavalink.AudioTrack
-        ):
-            song = None
-            while song is None:
-                try:
-                    song = player.queue.pop(0)
-                    song = await Helpers.process_song(player, song)
-                except IndexError as e:
-                    pass
+
+        await Helpers.add_song(player)
 
     async def queue_end(self, event):
         pass

@@ -49,14 +49,7 @@ class QueueCog(VoiceBaseCog):
         if not player.is_playing:
             return await ctx.send("Not playing.")
 
-        if player.queue and not isinstance(player.queue[0], AudioTrack):
-            song = None
-            while song is None:
-                try:
-                    song = player.queue.pop(0)
-                    song = await Helpers.process_song(player, song)
-                except IndexError as e:
-                    pass
+        await Helpers.add_song(player)
 
         await player.skip()
         await ctx.message.add_reaction("⏭")
