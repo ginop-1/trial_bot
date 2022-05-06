@@ -120,6 +120,17 @@ class QueueCog(VoiceBaseCog):
 
         await ctx.send(f"Removed **{removed['title']}** from the queue.")
 
+    @commands.command(aliases=["Clear"])
+    async def clear(self, ctx):
+        """Clears the player's queue."""
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
+
+        if not player.queue:
+            return await ctx.send("Nothing queued.")
+
+        player.queue.clear()
+        await ctx.message.add_reaction("👌🏽")
+
 
 def setup(bot):
     bot.add_cog(QueueCog(bot))
