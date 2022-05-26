@@ -1,10 +1,22 @@
 from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
-import os
-import sys
+import os, sys, logging
 from trial.config import Config
 
 Config.load()
+
+# setup logging to file
+logging.basicConfig(
+    filename="logs/bot.log",
+    filemode="a+",
+    format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
+    datefmt="%d-%m-%Y %H:%M:%S",
+    level=logging.INFO,
+)
+# set lavalink logging level to WARNING
+logging.getLogger("lavalink").setLevel(logging.WARNING)
+# set nextcord logging level to WARNING
+logging.getLogger("nextcord").setLevel(logging.WARNING)
 
 
 def load_cogs(bot):
@@ -33,6 +45,9 @@ bot_activity = Activity(
 
 @bot.event
 async def on_ready():
+    with open("logs/guildss.txt", "w") as f:
+        for guild in bot.guilds:
+            f.write(f"{guild.id}-{guild.name}\n")
     load_cogs(bot)
     await bot.change_presence(
         status=bot.status,

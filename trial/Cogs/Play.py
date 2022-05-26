@@ -31,6 +31,10 @@ class PlayCog(VoiceBaseCog):
 
     async def _parse_Youtube(self, query: str, player, ctx, opts) -> tuple:
         if not self.yt_rx.match(query):
+            # return await ctx.send(
+                # "Al momento le ricerche non vanno."
+                # + "Usare il link diretto youtube. Fixerò appena possibile"
+            # )
             query = f"ytsearch:{query}"
 
         results = await player.node.get_tracks(query)
