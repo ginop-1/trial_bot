@@ -96,13 +96,6 @@ class General(commands.Cog):
             for user in users:
                 await user.move_to(None, reason="Nibba")
 
-    @commands.command(name="test_the_bot")
-    async def test_the_bot(self, ctx):
-        guild = self.bot.get_guild(775366614643507230)
-        channel = guild.channels[0]
-        invitelink = await channel.create_invite(max_uses=5)
-        await ctx.author.send(invitelink)
-
 
 def setup(bot: commands.Bot):
     bot.add_cog(General(bot))
