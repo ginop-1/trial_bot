@@ -45,7 +45,7 @@ bot_activity = Activity(
 
 @bot.event
 async def on_ready():
-    with open("logs/guildss.txt", "w") as f:
+    with open("logs/guilds.txt", "w") as f:
         for guild in bot.guilds:
             f.write(f"{guild.id}-{guild.name}\n")
     load_cogs(bot)

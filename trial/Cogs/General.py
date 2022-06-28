@@ -19,7 +19,7 @@ class General(commands.Cog):
         Automatically leaves if the bot is AFK
         """
         pl_manager = self.bot.lavalink.player_manager
-        players = self.bot.lavalink.player_manager.players
+        players = pl_manager.players
         if not players:
             return
         for guild_id, player in players.copy().items():
@@ -30,10 +30,9 @@ class General(commands.Cog):
             elif player.afk:
                 guild = self.bot.get_guild(guild_id)
                 await guild.voice_client.disconnect(force=False)
-                # pl_manager.remove(guild_id)
+                pl_manager.remove(guild_id)
             else:
                 player.afk = True
-        pass
 
     @commands.command(name="ping")
     async def ping(self, ctx):
