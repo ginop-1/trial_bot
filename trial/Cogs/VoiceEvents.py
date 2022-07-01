@@ -23,7 +23,7 @@ class VoiceEventsCog(VoiceBaseCog):
         )
 
     async def track_start(self, event):
-        event.player.afk = False
+        event.player.store("afk", False)
         if event.track.uri.startswith("./"):  # local file
             return
         embed = nextcord.Embed(

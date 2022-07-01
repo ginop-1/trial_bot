@@ -26,13 +26,13 @@ class General(commands.Cog):
             if not player.is_connected:
                 pl_manager.remove(guild_id)
             elif player.is_playing or player.paused:
-                player.afk = False
-            elif player.afk:
+                player.store("afk", False)
+            elif player.fetch("afk"):
                 guild = self.bot.get_guild(guild_id)
                 await guild.voice_client.disconnect(force=False)
                 pl_manager.remove(guild_id)
             else:
-                player.afk = True
+                player.store("afk", True)
 
     @commands.command(name="ping")
     async def ping(self, ctx):
