@@ -63,6 +63,9 @@ class QueueCog(VoiceBaseCog):
             return await ctx.send("Not playing.")
 
         player.queue.clear()
+        # Stopping the player while it's paused will cause it to block (idk why). 
+        await player.set_pause(False)
+        
         await player.stop()
         await ctx.message.add_reaction("🛑")
 
