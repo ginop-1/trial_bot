@@ -27,6 +27,7 @@ def load_cogs(bot):
 
 intents = Intents.default()
 intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(
     command_prefix=Config.PREFIX,
