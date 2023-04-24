@@ -7,9 +7,9 @@ Config.load()
 
 # setup logging to file
 logging.basicConfig(
-    filename="logs/bot.log",
-    filemode="a+",
-    format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
+    # filename="logs/bot.log",
+    # filemode="a+",
+    format="%(asctime)s:%(levelname)s:%(name)s -> %(message)s",
     datefmt="%d-%m-%Y %H:%M:%S",
     level=logging.INFO,
 )
@@ -54,7 +54,7 @@ async def on_ready():
         status=bot.status,
         activity=bot_activity,
     )
-    print(f"{Config.PREFIX}start. Bot is ready")
+    logging.info(f"{Config.PREFIX}start. Bot is ready")
 
 
 # this check is needed because if the list is empty

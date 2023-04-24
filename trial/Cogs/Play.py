@@ -10,7 +10,7 @@ import deezer
 
 import random
 import re
-
+import logging
 
 class PlayCog(VoiceBaseCog):
     def __init__(self, bot):
@@ -107,7 +107,7 @@ class PlayCog(VoiceBaseCog):
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if player is None:
-            return await ctx.send("Sto testando il bot, al momento è offline")
+            return await ctx.send("Currently offline")
 
         if not args:
             return await ctx.send("Please provide a search query.")
@@ -116,6 +116,8 @@ class PlayCog(VoiceBaseCog):
             opts, query = None, " ".join(args)
         else:
             opts, query = args[0], " ".join(args[1:])
+
+        logging.info(f"Received query: {query} from guild {ctx.guild.name}")
 
         query = query.strip("<>")
         if self.yt_rx.match(query) or not query.startswith("https://"):

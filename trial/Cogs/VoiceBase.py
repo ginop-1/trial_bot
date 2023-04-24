@@ -1,4 +1,6 @@
 import lavalink
+import logging
+
 from nextcord.ext import commands
 from nextcord.errors import ClientException
 from trial.Utils.LavalinkVC import LavalinkVoiceClient
@@ -55,7 +57,6 @@ class VoiceBaseCog(commands.Cog):
         should_connect = ctx.command.name in ("play", "tts", "join")
 
         if not ctx.author.voice or not ctx.author.voice.channel:
-
             raise commands.CommandInvokeError("Join a voicechannel first.")
 
         if not player.is_connected:
@@ -84,7 +85,7 @@ class VoiceBaseCog(commands.Cog):
                 )
 
     async def cog_command_error(self, ctx, error):
-        print(f"ERROR IN {ctx.guild.name}: {error}")
+        logging.info(f"ERROR IN {ctx.guild.name}: {error}")
 
     #   if isinstance(error, commands.CommandInvokeError):
     #     await ctx.send(error)
