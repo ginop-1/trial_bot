@@ -7,7 +7,7 @@ from trial.Utils.LavalinkVC import LavalinkVoiceClient
 from trial.config import Config
 
 
-class VoiceBaseCog(commands.Cog):
+class VoiceBase(commands.Cog):
     """Base of all Voice related Cogs."""
 
     def __init__(self, bot):

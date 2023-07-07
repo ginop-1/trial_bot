@@ -1,12 +1,12 @@
 import nextcord
-from .VoiceBase import VoiceBaseCog
+from .VoiceBase import VoiceBase
 import lavalink
 import os
 
 from trial.Utils.Helpers import Helpers
 
 
-class VoiceEventsCog(VoiceBaseCog):
+class VoiceEvents(VoiceBase):
     def __init__(self, bot):
         self.bot = bot
         lavalink.add_event_hook(
@@ -56,4 +56,4 @@ class VoiceEventsCog(VoiceBaseCog):
 
 
 def setup(bot):
-    bot.add_cog(VoiceEventsCog(bot))
+    bot.add_cog(VoiceEvents(bot))
