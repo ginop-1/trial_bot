@@ -80,12 +80,13 @@ class VoiceBase(commands.Cog):
                 await guild.voice_client.connect(timeout=60, reconnect=True)
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
-                raise commands.CommandInvokeError(
-                    "You need to be in my voicechannel."
-                )
+                raise commands.CommandInvokeError("You need to be in my voicechannel.")
 
     async def cog_command_error(self, ctx, error):
         logging.info(f"ERROR IN {ctx.guild.name}: {error}")
+        # disconnected from lavalink backend
+        if str(error).startswith("Attempting a reconnect in"):
+            exit(1)
 
     #   if isinstance(error, commands.CommandInvokeError):
     #     await ctx.send(error)
