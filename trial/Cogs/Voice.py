@@ -1,11 +1,11 @@
 from gtts import gTTS
 from nextcord.ext import commands
-from .VoiceBase import VoiceBaseCog
+from .VoiceBase import VoiceBase
 import subprocess
 import requests
 
 
-class VoiceCog(VoiceBaseCog):
+class Voice(VoiceBase):
     def __init__(self, bot) -> None:
         super().__init__(bot)
 
@@ -18,7 +18,7 @@ class VoiceCog(VoiceBaseCog):
 
     @commands.command(aliases=["dc", "leave"])
     async def disconnect(self, ctx):
-        """Disconnects the player from the voice channel and clears its queue."""
+        """Disconnects the playe<r from the voice channel and clears its queue."""
         player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_connected:
@@ -69,4 +69,4 @@ class VoiceCog(VoiceBaseCog):
 
 
 def setup(bot: commands.Bot):
-    bot.add_cog(VoiceCog(bot))
+    bot.add_cog(Voice(bot))
