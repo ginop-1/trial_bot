@@ -9,15 +9,15 @@ from trial.Utils.Helpers import Helpers
 class VoiceEvents(VoiceBase):
     def __init__(self, bot):
         self.bot = bot
-        lavalink.add_event_hook(
+        bot.lavalink.add_event_hook(
             self.track_start,
             event=lavalink.events.TrackStartEvent,
         )
-        lavalink.add_event_hook(
+        bot.lavalink.add_event_hook(
             self.track_end,
             event=lavalink.events.TrackEndEvent,
         )
-        lavalink.add_event_hook(
+        bot.lavalink.add_event_hook(
             self.queue_end,
             event=lavalink.events.QueueEndEvent,
         )

@@ -97,8 +97,4 @@ class VoiceBase(commands.Cog):
 
 
 def setup(bot):
-    """
-    we don't need to add the cog to the bot because
-    it is already loaded in other Music Cogs
-    """
-    pass
+    bot.add_cog(VoiceBase(bot))
