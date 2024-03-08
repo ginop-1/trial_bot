@@ -20,8 +20,9 @@ logging.getLogger("nextcord").setLevel(logging.WARNING)
 
 
 def load_cogs(bot):
+    bot.load_extension("trial.Cogs.VoiceBase")
     for f in os.listdir("./trial/Cogs"):
-        if f.endswith(".py"):
+        if f.endswith(".py") and ("VoiceBase" not in f):
             bot.load_extension(f"trial.Cogs.{f[:-3]}")
 
 
