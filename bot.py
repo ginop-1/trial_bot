@@ -47,9 +47,12 @@ bot_activity = Activity(
 
 @bot.event
 async def on_ready():
-    with open("logs/guilds.txt", "w") as f:
-        for guild in bot.guilds:
-            f.write(f"{guild.id}-{guild.name}\n")
+    try:
+        with open("logs/guilds.txt", "w") as f:
+            for guild in bot.guilds:
+                f.write(f"{guild.id}-{guild.name}\n")
+    except FileNotFoundError as e:
+        pass
     load_cogs(bot)
     await bot.change_presence(
         status=bot.status,
