@@ -23,6 +23,7 @@ class VoiceBase(commands.Cog):
                 "eu",
                 "default-node",
             )
+            logging.info("Lavalink node connected.")
 
     def cog_unload(self):
         """Cog unload handler. This removes any event hooks that were registered."""
@@ -75,7 +76,7 @@ class VoiceBase(commands.Cog):
             player.store("channel", ctx.channel.id)
             try:
                 await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
-            except ClientException as e:
+            except ClientException:
                 guild = self.bot.get_guild(ctx.author.guild.id)
                 await guild.voice_client.connect(timeout=60, reconnect=True)
         else:

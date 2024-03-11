@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Dict, Tuple, Union
 
 
 class Config:

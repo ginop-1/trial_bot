@@ -1,6 +1,8 @@
 from nextcord import Activity, ActivityType, Intents
 from nextcord.ext import commands
-import os, sys, logging
+import os
+import sys
+import logging
 from trial.config import Config
 
 Config.load()
@@ -51,7 +53,7 @@ async def on_ready():
         with open("logs/guilds.txt", "w") as f:
             for guild in bot.guilds:
                 f.write(f"{guild.id}-{guild.name}\n")
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         pass
     load_cogs(bot)
     await bot.change_presence(

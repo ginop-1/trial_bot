@@ -49,9 +49,7 @@ class General(commands.Cog):
         if not Config.INSULTS:
             return await ctx.send("Insults are disabled")
 
-        response = (
-            words + Config.INSULTS[random.randint(0, len(Config.INSULTS) - 1)]
-        )
+        response = words + Config.INSULTS[random.randint(0, len(Config.INSULTS) - 1)]
         await ctx.send(response)
 
     @commands.command(name="wiki")
@@ -66,7 +64,7 @@ class General(commands.Cog):
         try:
             search = str(wikipedia_for_humans.summary(words))
             title = str(wikipedia_for_humans._get_title(words))
-        except Exception as e:
+        except Exception:
             return await _page_not_found(ctx)
 
         if search in ("", None):
@@ -93,7 +91,7 @@ class General(commands.Cog):
         ):
             users = ctx.message.author.voice.channel.members
             for user in users:
-                await user.move_to(None, reason="Nibba")
+                await user.move_to(None, reason="GUEEE")
 
 
 def setup(bot: commands.Bot):
