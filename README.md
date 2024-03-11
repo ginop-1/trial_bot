@@ -15,8 +15,8 @@
 - Create a discord app
 - Install dependencies: `pip install -r requirements.txt`
 - Install lavalink 3.2 (3.1.x has a bug with encoding): `pip install https://github.com/Devoxin/Lavalink.py/archive/refs/heads/3.2.zip`
-- Install Java 13
-- Download and setup a [lavalink server](https://github.com/freyacodes/Lavalink/releases) \*
+- Install Java 17 (LTS is recommended)
+- Download and setup [lavalink](https://github.com/freyacodes/Lavalink/releases) \*
 - Edit `application.yml` for lavalink server
 - Edit `config.json.example` based on your needs and rename it to `config.json
   - have a look at [CONFIG.md](configs/config.MD) 
