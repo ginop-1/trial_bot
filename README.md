@@ -22,7 +22,7 @@
   - have a look at [CONFIG.md](configs/config.MD) 
 - Start the lavalink server and the bot
 
-\* I personally host the bot on a Raspberry Pi (arm). If you're in the same situation you should use a [different lavalink build](https://github.com/Cog-Creators/Lavalink-Jars/releases)
+\* ~~I personally host the bot on a Raspberry Pi (arm). If you're in the same situation you should use a [different lavalink build](https://github.com/Cog-Creators/Lavalink-Jars/releases)~~ With lavalink v4 it should work just fine
 
 ---
 
