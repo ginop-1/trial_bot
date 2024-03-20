@@ -11,14 +11,13 @@ Config.load()
 logging.basicConfig(
     # filename="logs/bot.log",
     # filemode="a+",
-    format="%(asctime)s:%(levelname)s:%(name)s -> %(message)s",
+    format="%(asctime)s - %(levelname)s -> %(message)s",
     datefmt="%d-%m-%Y %H:%M:%S",
     level=logging.INFO,
 )
-# set lavalink logging level to WARNING
 logging.getLogger("lavalink").setLevel(logging.WARNING)
-# set nextcord logging level to WARNING
 logging.getLogger("nextcord").setLevel(logging.WARNING)
+logging.getLogger("wikipediaapi").setLevel(logging.WARNING)
 
 
 def load_cogs(bot):

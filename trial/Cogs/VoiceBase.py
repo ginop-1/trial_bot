@@ -5,6 +5,7 @@ from nextcord.ext import commands
 from nextcord.errors import ClientException
 from trial.Utils.LavalinkVC import LavalinkVoiceClient
 from trial.config import Config
+from trial.Utils.Helpers import Helpers
 
 
 class VoiceBase(commands.Cog):
@@ -40,8 +41,9 @@ class VoiceBase(commands.Cog):
             return None
 
         if guild_check:
-            await self.ensure_voice(ctx)
+            Helpers.format_logs(self.qualified_name, ctx)
             #  Ensure that the bot and command author share a mutual voicechannel.
+            await self.ensure_voice(ctx)
 
         return guild_check
 

@@ -2,6 +2,7 @@ from trial.config import Config
 import random
 import wikipedia_for_humans
 from nextcord.ext import commands, tasks
+from trial.Utils.Helpers import Helpers
 
 
 class General(commands.Cog):
@@ -12,6 +13,9 @@ class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.auto_leave_afk.start()
+
+    async def cog_before_invoke(self, ctx):
+        Helpers.format_logs(self.qualified_name, ctx)
 
     @tasks.loop(minutes=10)
     async def auto_leave_afk(self):
@@ -92,6 +96,8 @@ class General(commands.Cog):
             users = ctx.message.author.voice.channel.members
             for user in users:
                 await user.move_to(None, reason="GUEEE")
+        else:
+            return await ctx.send("Only server owner can use this command")
 
 
 def setup(bot: commands.Bot):

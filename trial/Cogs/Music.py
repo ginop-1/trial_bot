@@ -12,7 +12,6 @@ import lavalink
 
 import random
 import re
-import logging
 
 
 class Music(VoiceBase):
@@ -188,8 +187,6 @@ class Music(VoiceBase):
             opts, query = None, " ".join(args)
         else:
             opts, query = args[0], " ".join(args[1:])
-
-        logging.info(f"Received query: {query} from guild {ctx.guild.name}")
 
         query = query.strip("<>")
         if self.yt_rx.match(query) or not query.startswith("http"):

@@ -2,6 +2,7 @@ import nextcord
 import random
 from spotipy import SpotifyException
 from lavalink import AudioTrack
+import logging
 
 
 class Queue_msg(nextcord.ui.View):
@@ -23,9 +24,7 @@ class Queue_msg(nextcord.ui.View):
             self.page_n += 1
         elif id == "last":
             self.page_n = self.max_page_n
-        desc = Helpers.get_pages(
-            self.pages, self.page_n * 10, (self.page_n + 1) * 10
-        )
+        desc = Helpers.get_pages(self.pages, self.page_n * 10, (self.page_n + 1) * 10)
         embed = nextcord.Embed(
             title="Queue",
             description=desc,
@@ -39,9 +38,7 @@ class Queue_msg(nextcord.ui.View):
     async def first(self, button, interaction):
         pass
 
-    @nextcord.ui.button(
-        custom_id="previous", emoji="previous:877152666046832670"
-    )
+    @nextcord.ui.button(custom_id="previous", emoji="previous:877152666046832670")
     async def previous(self, button, interaction):
         pass
 
@@ -154,8 +151,7 @@ class Helpers:
                 }
                 if res_type in ("playlist")
                 else {
-                    "title": f"{song['name']}"
-                    + f" - {song['artists'][0]['name']}",
+                    "title": f"{song['name']}" + f" - {song['artists'][0]['name']}",
                     "requester": requester,
                 }
                 for song in song_list
@@ -188,3 +184,11 @@ class Helpers:
                 for song in pl.tracks
             ],
         }
+
+    @staticmethod
+    def format_logs(cog_name, ctx):
+        # command parameters
+        params = '"' + "".join(ctx.message.content.split(" ")[1:]) + '"'
+        logging.info(
+            f'{cog_name} event from "{ctx.guild.name}". Command: {ctx.command.name} {params}'
+        )
